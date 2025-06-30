@@ -302,20 +302,16 @@ export default function ReportForm() {
                 </div>
               </div>
               <div className="mb-4">
-                <label className="block text-lg font-semibold text-gray-700">
-                  อัปโหลดรูปภาพ (Google Drive)
+                <label className="block text-lg font-semibold text-gray-700 mb-2">
+                  รูปภาพประกอบ (Optional)
                 </label>
-                <input
-                  ref={fileInputRef}
-                  type="file"
-                  name="image"
-                  onChange={handleImageChange}
-                  accept="image/*"
-                  className="block"
-                />
-                {imagePreview && imagePreview !== "" && (
-                  <img src={imagePreview} alt="Preview" className="mt-2 max-w-xs rounded-lg border" />
-                )}
+                <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-indigo-50 to-cyan-50 rounded-2xl border-2 border-dashed border-indigo-200 shadow-inner">
+                  <svg className="w-16 h-16 text-indigo-400 animate-bounce mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
+                  </svg>
+                  <p className="text-gray-500 text-lg font-medium mb-2">ยังไม่ได้เลือกรูปภาพ</p>
+                  <p className="text-gray-400 text-sm">(ระบบนี้ไม่รองรับการอัปโหลดรูปภาพโดยตรงในขณะนี้)</p>
+                </div>
               </div>
               {loading && (
                 <div className="glass-card text-center">

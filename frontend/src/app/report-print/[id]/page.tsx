@@ -87,6 +87,12 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
   }
 
+  function getDriveFileId(driveUrl?: string) {
+    if (!driveUrl) return null;
+    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
+    return fileIdMatch ? fileIdMatch[1] : null;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen futuristic-bg">
@@ -243,16 +249,16 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
           <div className="mb-4 print:mb-3">
             <div className="font-bold text-gray-800 text-base mb-2 print:text-sm">รูปภาพประกอบ</div>
             <div className="flex justify-center">
-              <img
-                src={getDirectImageUrl(report.imageUrl)}
-                alt="Report"
-                className="w-full max-w-sm h-auto object-contain border border-gray-300 rounded-lg bg-white print:bg-white print:max-w-xs"
-                style={{ maxHeight: '180px' }}
-                onError={(e) => {
-                  const target = e.target as HTMLImageElement;
-                  target.style.display = "none";
-                }}
-              />
+              {getDriveFileId(report.imageUrl) && (
+                <iframe
+                  src={`https://drive.google.com/file/d/${getDriveFileId(report.imageUrl)}/preview`}
+                  width="100%"
+                  height="224"
+                  style={{ border: 0, borderRadius: '16px', boxShadow: '0 2px 8px #0002' }}
+                  allow="autoplay"
+                  title="Report Image"
+                ></iframe>
+              )}
             </div>
           </div>
         )}

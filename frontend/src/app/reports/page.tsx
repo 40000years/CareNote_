@@ -141,12 +141,26 @@ export default function ReportsPage() {
   // เพิ่มฟังก์ชันแปลง Google Drive URL เป็น direct image link
   function getDirectImageUrl(driveUrl?: string) {
     if (!driveUrl) return '';
+    if (driveUrl.includes('lh3.googleusercontent.com')) {
+      // ไม่รองรับลิงก์นี้
+      return '';
+    }
     // รองรับทั้ง /d/FILE_ID/ และ id=FILE_ID
     const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
     const fileId = fileIdMatch ? fileIdMatch[1] : null;
     if (!fileId) return driveUrl;
     // Use smaller sz=w400 to reduce rate limiting
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
+  }
+
+  // เพิ่ม test image card สำหรับทดสอบ Google Drive link
+  const testDriveUrl = "https://drive.google.com/file/d/1nEi3lTmDAAu-fVLPFH7u2VQ6dm9KWwXz/view?usp=sharing";
+  const testDirectUrl = getDirectImageUrl(testDriveUrl);
+
+  function getDriveFileId(driveUrl?: string) {
+    if (!driveUrl) return null;
+    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
+    return fileIdMatch ? fileIdMatch[1] : null;
   }
 
   if (loading) {
@@ -384,7 +398,7 @@ export default function ReportsPage() {
           <>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {paginatedReports.map((report, index) => {
-                const directUrl = getDirectImageUrl(report.imageUrl);
+                const fileId = getDriveFileId(report.imageUrl);
                 return (
                   <div 
                     key={report.id} 
@@ -393,11 +407,16 @@ export default function ReportsPage() {
                   >
                     {/* Image */}
                     <div className="mb-6">
-                      <img
-                        src={directUrl}
-                        alt="Report"
-                        className="w-full h-56 object-cover rounded-2xl shadow-lg"
-                      />
+                      {fileId && (
+                        <iframe
+                          src={`https://drive.google.com/file/d/${fileId}/preview`}
+                          width="100%"
+                          height="224"
+                          style={{ border: 0, borderRadius: '16px', boxShadow: '0 2px 8px #0002' }}
+                          allow="autoplay"
+                          title={`Report Image ${report.id}`}
+                        ></iframe>
+                      )}
                     </div>
 
                     {/* Content */}
