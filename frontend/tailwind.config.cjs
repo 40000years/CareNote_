@@ -1,0 +1,37 @@
+/** @type {import('tailwindcss').Config} */
+module.exports = {
+  content: [
+    "./src/app/**/*.{js,ts,jsx,tsx}",
+    "./src/app/**/**/*.{js,ts,jsx,tsx}",
+    "./src/components/**/*.{js,ts,jsx,tsx}",
+  ],
+  safelist: [
+    'futuristic-bg',
+    'glass-card',
+    'btn-futuristic-primary',
+    'btn-futuristic-secondary',
+    'input-futuristic',
+    'input-futuristic-with-icon',
+    'textarea-futuristic-with-icon',
+    'nav-glass',
+    'container-futuristic',
+    'neumorphic',
+    'neumorphic-inset',
+    'neumorphic-button',
+    'glow-primary',
+    'glow-secondary',
+    'glow-accent',
+    'gradient-text-primary',
+    'gradient-text-secondary',
+    'animate-fade-in',
+    'animate-slide-up',
+    'animate-scale-in',
+    'floating-card',
+    'card-hover',
+    'spinner-futuristic',
+  ],
+  theme: {
+    extend: {},
+  },
+  plugins: [],
+}; 

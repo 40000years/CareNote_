@@ -9,11 +9,9 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/spreadsheets.readonly'],
 });
 
-export async function GET(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const { id } = await params;
     const sheets = google.sheets({ version: 'v4', auth });
     
     // Get all data first
@@ -31,7 +29,7 @@ export async function GET(
     }
 
     // Find the report by ID (row number - 1 for header)
-    const reportIndex = parseInt(params.id) - 1;
+    const reportIndex = parseInt(id) - 1;
     if (reportIndex < 0 || reportIndex >= rows.length - 1) {
       return NextResponse.json(
         { error: 'Report not found' },
@@ -41,7 +39,7 @@ export async function GET(
 
     const row = rows[reportIndex + 1]; // +1 to skip header
     const report = {
-      id: parseInt(params.id),
+      id: parseInt(id),
       date: row[0] || '',
       time: row[1] || '',
       name: row[2] || '',

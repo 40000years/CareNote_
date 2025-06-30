@@ -138,6 +138,17 @@ export default function ReportsPage() {
     "หัวหน้าประจำวันและดูแลความปลอดภัยในโรงเรียน"
   ];
 
+  // เพิ่มฟังก์ชันแปลง Google Drive URL เป็น direct image link
+  function getDirectImageUrl(driveUrl?: string) {
+    if (!driveUrl) return '';
+    // รองรับทั้ง /d/FILE_ID/ และ id=FILE_ID
+    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
+    const fileId = fileIdMatch ? fileIdMatch[1] : null;
+    if (!fileId) return driveUrl;
+    // Use smaller sz=w400 to reduce rate limiting
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen futuristic-bg">
@@ -372,111 +383,108 @@ export default function ReportsPage() {
         ) : (
           <>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {paginatedReports.map((report, index) => (
-                <div 
-                  key={report.id} 
-                  className="glass-card card-hover animate-slide-up"
-                  style={{animationDelay: `${index * 0.1}s`}}
-                >
-                  {/* Image */}
-                  {report.imageUrl && (
+              {paginatedReports.map((report, index) => {
+                const directUrl = getDirectImageUrl(report.imageUrl);
+                return (
+                  <div 
+                    key={report.id} 
+                    className="glass-card card-hover animate-slide-up"
+                    style={{animationDelay: `${index * 0.1}s`}}
+                  >
+                    {/* Image */}
                     <div className="mb-6">
                       <img
-                        src={report.imageUrl}
+                        src={directUrl}
                         alt="Report"
                         className="w-full h-56 object-cover rounded-2xl shadow-lg"
-                        onError={(e) => {
-                          const target = e.target as HTMLImageElement;
-                          target.style.display = "none";
-                        }}
                       />
                     </div>
-                  )}
 
-                  {/* Content */}
-                  <div className="space-y-6">
-                    {/* Date and Time */}
-                    <div className="flex items-center justify-between">
+                    {/* Content */}
+                    <div className="space-y-6">
+                      {/* Date and Time */}
+                      <div className="flex items-center justify-between">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-secondary">
+                            <svg className="w-5 h-5 gradient-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-semibold text-gray-600">
+                            {formatDate(report.date)}
+                          </span>
+                        </div>
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-accent">
+                            <svg className="w-5 h-5 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                            </svg>
+                          </div>
+                          <span className="text-sm font-semibold text-gray-600">
+                            {formatTime(report.time)}
+                          </span>
+                        </div>
+                      </div>
+
+                      {/* Name */}
+                      <div className="flex items-center space-x-3">
+                        <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-primary">
+                          <svg className="w-5 h-5 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                          </svg>
+                        </div>
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-500">ชื่อผู้ปฏิบัติหน้าที่</h4>
+                          <p className="text-lg font-semibold text-gray-900">{report.name}</p>
+                        </div>
+                      </div>
+
+                      {/* Location */}
                       <div className="flex items-center space-x-3">
                         <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-secondary">
                           <svg className="w-5 h-5 gradient-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                           </svg>
                         </div>
-                        <span className="text-sm font-semibold text-gray-600">
-                          {formatDate(report.date)}
-                        </span>
-                      </div>
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-accent">
-                          <svg className="w-5 h-5 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                          </svg>
+                        <div>
+                          <h4 className="text-sm font-semibold text-gray-500">สถานที่ปฏิบัติงาน</h4>
+                          <p className="text-lg font-semibold text-gray-900">{report.location}</p>
                         </div>
-                        <span className="text-sm font-semibold text-gray-600">
-                          {formatTime(report.time)}
-                        </span>
                       </div>
-                    </div>
 
-                    {/* Name */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-primary">
-                        <svg className="w-5 h-5 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-500">ชื่อผู้ปฏิบัติหน้าที่</h4>
-                        <p className="text-lg font-semibold text-gray-900">{report.name}</p>
-                      </div>
-                    </div>
-
-                    {/* Location */}
-                    <div className="flex items-center space-x-3">
-                      <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-secondary">
-                        <svg className="w-5 h-5 gradient-text-secondary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                        </svg>
-                      </div>
-                      <div>
-                        <h4 className="text-sm font-semibold text-gray-500">สถานที่ปฏิบัติงาน</h4>
-                        <p className="text-lg font-semibold text-gray-900">{report.location}</p>
-                      </div>
-                    </div>
-
-                    {/* Event */}
-                    <div className="space-y-3">
-                      <div className="flex items-center space-x-3">
-                        <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-accent">
-                          <svg className="w-5 h-5 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h6a2 2 0 012 2v12a2 2 0 01-2 2z" />
-                          </svg>
+                      {/* Event */}
+                      <div className="space-y-3">
+                        <div className="flex items-center space-x-3">
+                          <div className="w-10 h-10 neumorphic rounded-xl flex items-center justify-center glow-accent">
+                            <svg className="w-5 h-5 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h6a2 2 0 012 2v12a2 2 0 01-2 2z" />
+                            </svg>
+                          </div>
+                          <h4 className="text-sm font-semibold text-gray-500">รายละเอียดเหตุการณ์</h4>
                         </div>
-                        <h4 className="text-sm font-semibold text-gray-500">รายละเอียดเหตุการณ์</h4>
+                        <p className="text-gray-700 leading-relaxed pl-13">
+                          {report.event}
+                        </p>
                       </div>
-                      <p className="text-gray-700 leading-relaxed pl-13">
-                        {report.event}
-                      </p>
-                    </div>
 
-                    {/* View Details Button */}
-                    <div className="pt-4">
-                      <Link 
-                        href={`/report-print/${report.id}`}
-                        className="btn-futuristic-secondary w-full text-center group"
-                      >
-                        <svg className="w-5 h-5 mr-2 inline group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
-                        </svg>
-                        ดูรายละเอียด
-                      </Link>
+                      {/* View Details Button */}
+                      <div className="pt-4">
+                        <Link 
+                          href={`/report-print/${report.id}`}
+                          className="btn-futuristic-secondary w-full text-center group"
+                        >
+                          <svg className="w-5 h-5 mr-2 inline group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
+                          </svg>
+                          ดูรายละเอียด
+                        </Link>
+                      </div>
                     </div>
                   </div>
-                </div>
-              ))}
+                );
+              })}
             </div>
             {/* Pagination */}
             {totalPages > 1 && (

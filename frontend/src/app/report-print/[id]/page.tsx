@@ -77,6 +77,16 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
     setEditData((prev) => ({ ...prev, [name]: value }));
   }
 
+  // เพิ่มฟังก์ชันแปลง Google Drive URL เป็น direct image link
+  function getDirectImageUrl(driveUrl?: string) {
+    if (!driveUrl) return '';
+    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
+    const fileId = fileIdMatch ? fileIdMatch[1] : null;
+    if (!fileId) return driveUrl;
+    // Use smaller sz=w400 to reduce rate limiting
+    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
+  }
+
   if (loading) {
     return (
       <div className="min-h-screen futuristic-bg">
@@ -234,7 +244,7 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
             <div className="font-bold text-gray-800 text-base mb-2 print:text-sm">รูปภาพประกอบ</div>
             <div className="flex justify-center">
               <img
-                src={report.imageUrl}
+                src={getDirectImageUrl(report.imageUrl)}
                 alt="Report"
                 className="w-full max-w-sm h-auto object-contain border border-gray-300 rounded-lg bg-white print:bg-white print:max-w-xs"
                 style={{ maxHeight: '180px' }}

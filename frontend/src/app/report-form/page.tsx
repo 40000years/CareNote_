@@ -77,7 +77,7 @@ export default function ReportForm() {
           body: formData,
         });
         const uploadData = await uploadRes.json();
-        return uploadData.url;
+        return uploadData.fileUrl;
       })() : Promise.resolve("");
 
       // Wait for image upload to complete
@@ -301,55 +301,21 @@ export default function ReportForm() {
                   />
                 </div>
               </div>
-              <div className="space-y-3">
+              <div className="mb-4">
                 <label className="block text-lg font-semibold text-gray-700">
-                  อัปโหลดรูปภาพ (ไม่บังคับ)
+                  อัปโหลดรูปภาพ (Google Drive)
                 </label>
-                <div className="relative">
-                  <input
-                    ref={fileInputRef}
-                    type="file"
-                    name="image"
-                    onChange={handleImageChange}
-                    accept="image/*"
-                    className="hidden"
-                  />
-                  {imagePreview ? (
-                    <div className="space-y-4">
-                      <img
-                        src={imagePreview}
-                        alt="Preview"
-                        className="w-full h-64 object-cover rounded-2xl shadow-lg"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setImagePreview(null);
-                          setImage(null);
-                          if (fileInputRef.current) {
-                            fileInputRef.current.value = "";
-                          }
-                        }}
-                        className="btn-futuristic-secondary text-red-600 hover:text-red-700"
-                      >
-                        ลบรูปภาพ
-                      </button>
-                    </div>
-                  ) : (
-                    <div
-                      onClick={() => fileInputRef.current?.click()}
-                      className="neumorphic-inset p-12 text-center cursor-pointer hover:scale-105 transition-transform duration-300"
-                    >
-                      <div className="w-20 h-20 neumorphic rounded-3xl flex items-center justify-center mx-auto mb-6">
-                        <svg className="w-10 h-10 gradient-text-primary" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                        </svg>
-                      </div>
-                      <p className="text-lg font-semibold text-gray-700 mb-2">คลิกเพื่ออัปโหลดรูปภาพ</p>
-                      <p className="text-gray-500">รองรับไฟล์ JPG, PNG, GIF ขนาดไม่เกิน 10MB</p>
-                    </div>
-                  )}
-                </div>
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  name="image"
+                  onChange={handleImageChange}
+                  accept="image/*"
+                  className="block"
+                />
+                {imagePreview && imagePreview !== "" && (
+                  <img src={imagePreview} alt="Preview" className="mt-2 max-w-xs rounded-lg border" />
+                )}
               </div>
               {loading && (
                 <div className="glass-card text-center">
