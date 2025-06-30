@@ -165,14 +165,26 @@ export default function ReportsPage() {
 
   if (loading) {
     return (
-      <div className="min-h-screen futuristic-bg">
-        <div className="container-futuristic py-12">
-          <div className="flex items-center justify-center min-h-[400px]">
-            <div className="text-center">
-              <div className="spinner-futuristic mx-auto mb-6"></div>
-              <p className="text-gray-600 text-lg">กำลังโหลดข้อมูล...</p>
+      <div className="min-h-screen futuristic-bg flex items-center justify-center relative">
+        {/* Animated background effect */}
+        <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-0">
+          <div className="w-full max-w-2xl h-80 bg-gradient-to-br from-white/90 via-cyan-200/80 to-indigo-200/70 rounded-3xl blur-2xl shadow-2xl opacity-90 animate-bg-move"></div>
+          <div className="absolute left-1/4 top-10 w-32 h-32 bg-cyan-300/30 rounded-full blur-3xl animate-float-particle2"></div>
+          <div className="absolute right-1/4 bottom-10 w-24 h-24 bg-indigo-400/20 rounded-full blur-2xl animate-float-particle3"></div>
+          <div className="absolute left-1/2 top-1/2 w-20 h-20 bg-white/40 rounded-full blur-2xl animate-float-particle"></div>
+        </div>
+        <div className="glass-card max-w-md w-full mx-auto p-10 rounded-3xl shadow-2xl border border-indigo-100 animate-fade-in relative z-10 flex flex-col items-center">
+          <div className="relative mb-8">
+            <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-400 via-cyan-400 to-indigo-300 animate-spin-slow shadow-xl flex items-center justify-center">
+              <svg className="w-12 h-12 text-white/80 animate-pulse" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
+                <circle cx="12" cy="12" r="10" strokeOpacity="0.2" strokeWidth="4" />
+                <path strokeLinecap="round" strokeLinejoin="round" d="M12 2a10 10 0 0 1 10 10" stroke="#6366f1" strokeWidth="4" />
+              </svg>
             </div>
+            <div className="absolute -top-3 -right-3 w-6 h-6 bg-cyan-300/60 rounded-full blur-md animate-float-particle2"></div>
           </div>
+          <h2 className="text-2xl font-bold text-indigo-700 mb-2 drop-shadow-lg">กำลังโหลดข้อมูล...</h2>
+          <p className="text-gray-500 text-lg">โปรดรอสักครู่</p>
         </div>
       </div>
     );
@@ -206,76 +218,99 @@ export default function ReportsPage() {
 
   return (
     <div className="min-h-screen futuristic-bg relative overflow-hidden">
-      {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-indigo-400/10 to-purple-400/10 rounded-full blur-3xl"></div>
-        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-cyan-400/10 to-blue-400/10 rounded-full blur-3xl"></div>
+      {/* Animated Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none z-0">
+        <div className="absolute top-20 left-10 w-72 h-72 bg-gradient-to-r from-indigo-400/20 to-purple-400/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        <div className="absolute bottom-20 right-10 w-96 h-96 bg-gradient-to-r from-cyan-400/20 to-blue-400/20 rounded-full blur-3xl animate-pulse-slow"></div>
+        {/* Particle effect */}
+        <div className="absolute top-1/2 left-1/2 w-2 h-2 bg-indigo-300 rounded-full opacity-60 animate-float-particle"></div>
+        <div className="absolute top-1/3 left-1/4 w-1.5 h-1.5 bg-cyan-300 rounded-full opacity-50 animate-float-particle2"></div>
+        <div className="absolute bottom-1/4 right-1/3 w-2 h-2 bg-purple-300 rounded-full opacity-40 animate-float-particle3"></div>
       </div>
 
-      {/* Navigation */}
-      <nav className="nav-glass">
-        <div className="container-futuristic">
-          <div className="flex items-center justify-between h-20">
-            <Link href="/" className="flex items-center space-x-3">
-              <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-12 h-12 rounded-2xl border border-gray-300 navbar-logo" />
-              <span className="text-2xl font-bold gradient-text-primary">
-                CareNote
-              </span>
-            </Link>
-            
-            {/* Desktop Navigation */}
-            <div className="hidden md:flex items-center space-x-8">
-              <Link href="/report-form" className="btn-futuristic-primary">
-                สร้างรายงานใหม่
+      <div className="relative">
+        <div className="navbar-bubble navbar-bubble-1"></div>
+        <div className="navbar-bubble navbar-bubble-2"></div>
+        <div className="navbar-bubble navbar-bubble-3"></div>
+        <div className="navbar-bubble navbar-bubble-4"></div>
+        <div className="navbar-bubble navbar-bubble-5"></div>
+        <div className="navbar-bubble navbar-bubble-6"></div>
+        <div className="navbar-bubble navbar-bubble-7"></div>
+        <div className="navbar-bubble navbar-bubble-8"></div>
+        <div className="navbar-bubble navbar-bubble-9"></div>
+        <div className="navbar-bubble navbar-bubble-10"></div>
+        {/* Navigation */}
+        <nav className="nav-glass navbar-animate-in">
+          <div className="container-futuristic">
+            <div className="flex items-center justify-between h-20">
+              <Link href="/" className="flex items-center space-x-3">
+                <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-12 h-12 rounded-2xl border border-gray-300 navbar-logo navbar-logo-animate" />
+                <span className="text-2xl font-bold gradient-text-primary">
+                  CareNote
+                </span>
               </Link>
-              <Link href="/" className="btn-futuristic-secondary">
-                หน้าแรก
-              </Link>
-            </div>
-
-            {/* Mobile Menu Button */}
-            <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
-            >
-              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-              </svg>
-            </button>
-          </div>
-
-          {/* Mobile Navigation Menu */}
-          {mobileMenuOpen && (
-            <div className="md:hidden py-4 border-t border-white/20">
-              <div className="flex flex-col space-y-4">
-                <Link 
-                  href="/report-form" 
-                  className="btn-futuristic-primary w-full text-center"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+              
+              {/* Desktop Navigation */}
+              <div className="hidden md:flex items-center space-x-8">
+                <Link href="/report-form" className="text-gray-600 nav-link-animate font-medium">
                   สร้างรายงานใหม่
                 </Link>
-                <Link 
-                  href="/" 
-                  className="btn-futuristic-secondary w-full text-center"
-                  onClick={() => setMobileMenuOpen(false)}
-                >
+                <Link href="/" className="text-gray-600 nav-link-animate font-medium">
                   หน้าแรก
                 </Link>
               </div>
+
+              {/* Mobile Menu Button */}
+              <button
+                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+                className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
+              >
+                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+                </svg>
+              </button>
             </div>
-          )}
-        </div>
-      </nav>
+
+            {/* Mobile Navigation Menu */}
+            {mobileMenuOpen && (
+              <div className="md:hidden py-4 border-t border-white/20">
+                <div className="flex flex-col space-y-4">
+                  <Link 
+                    href="/report-form" 
+                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    สร้างรายงานใหม่
+                  </Link>
+                  <Link 
+                    href="/" 
+                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
+                    onClick={() => setMobileMenuOpen(false)}
+                  >
+                    หน้าแรก
+                  </Link>
+                </div>
+              </div>
+            )}
+          </div>
+        </nav>
+      </div>
 
       {/* Main Content */}
-      <div className="container-futuristic py-12">
+      <div className="container-futuristic py-12 z-10 relative">
+        {/* Animated background effect behind content block */}
+        <div className="absolute inset-0 flex justify-center items-center pointer-events-none z-0">
+          <div className="w-full max-w-5xl h-96 bg-gradient-to-br from-white/90 via-cyan-200/80 to-indigo-200/70 rounded-3xl blur-2xl shadow-2xl opacity-90 animate-bg-move"></div>
+          <div className="absolute left-1/4 top-10 w-40 h-40 bg-cyan-300/30 rounded-full blur-3xl animate-float-particle2"></div>
+          <div className="absolute right-1/4 bottom-10 w-32 h-32 bg-indigo-400/20 rounded-full blur-2xl animate-float-particle3"></div>
+          <div className="absolute left-1/2 top-1/2 w-24 h-24 bg-white/40 rounded-full blur-2xl animate-float-particle"></div>
+        </div>
         {/* Header */}
-        <div className="text-center mb-16 animate-fade-in">
-          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6">
+        <div className="text-center mb-16 animate-fade-in relative z-10">
+          <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 mb-6 animate-slide-up">
             รายงานการปฏิบัติหน้าที่
           </h1>
-          <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+          <p className="text-xl text-gray-600 max-w-2xl mx-auto animate-fade-in">
             ดูรายงานทั้งหมดที่บันทึกไว้ในระบบ
           </p>
         </div>
@@ -362,7 +397,7 @@ export default function ReportsPage() {
         {/* Reports List */}
         {filteredReports.length === 0 ? (
           <div className="text-center py-20 animate-scale-in">
-            <div className="glass-card max-w-md mx-auto">
+            <div className="glass-card max-w-md mx-auto animate-fade-in">
               <div className="w-24 h-24 neumorphic rounded-3xl flex items-center justify-center mx-auto mb-8">
                 <svg className="w-12 h-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
@@ -400,10 +435,10 @@ export default function ReportsPage() {
               {paginatedReports.map((report, index) => {
                 const fileId = getDriveFileId(report.imageUrl);
                 return (
-                  <div 
-                    key={report.id} 
-                    className="glass-card card-hover animate-slide-up"
-                    style={{animationDelay: `${index * 0.1}s`}}
+                  <div
+                    key={report.id}
+                    className={`glass-card floating-card card-hover animate-slide-up transition-all duration-500 hover:scale-105 hover:shadow-2xl group`}
+                    style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     {/* Image */}
                     <div className="mb-6">
@@ -489,9 +524,9 @@ export default function ReportsPage() {
 
                       {/* View Details Button */}
                       <div className="pt-4">
-                        <Link 
+                        <Link
                           href={`/report-print/${report.id}`}
-                          className="btn-futuristic-secondary w-full text-center group"
+                          className="btn-futuristic-secondary w-full text-center group transition-all duration-300 hover:scale-105 hover:shadow-lg"
                         >
                           <svg className="w-5 h-5 mr-2 inline group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />

@@ -299,6 +299,30 @@ a {
   animation: scaleIn 0.6s ease-out;
 }
 
+.animate-pulse-slow {
+  animation: pulse 4s ease-in-out infinite;
+}
+
+.animate-float-particle {
+  animation: float 8s ease-in-out infinite;
+}
+
+.animate-float-particle2 {
+  animation: float2 7s ease-in-out infinite;
+}
+
+.animate-float-particle3 {
+  animation: float3 9s ease-in-out infinite;
+}
+
+.animate-bg-move {
+  animation: bgMove 12s ease-in-out infinite alternate;
+}
+
+.animate-spin-slow {
+  animation: spin 2.5s linear infinite;
+}
+
 @keyframes fadeIn {
   from { opacity: 0; }
   to { opacity: 1; }
@@ -324,6 +348,35 @@ a {
     transform: scale(1); 
     opacity: 1; 
   }
+}
+
+@keyframes pulse {
+  0%,100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+@keyframes float {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-10px); }
+}
+
+@keyframes float2 {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-16px); }
+}
+
+@keyframes float3 {
+  0%,100% { transform: translateY(0); }
+  50% { transform: translateY(-6px); }
+}
+
+@keyframes bgMove {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(30px); }
+}
+
+@keyframes spin {
+  100% { transform: rotate(360deg); }
 }
 
 /* Custom Scrollbar */
@@ -608,4 +661,127 @@ a {
   }
 }
 
-    border: 1px solid #d1d5db !important;
+.navbar-animate-in {
+  animation: navbarIn 0.7s cubic-bezier(.4,2,.6,1) both;
+}
+@keyframes navbarIn {
+  0% { opacity: 0; transform: translateY(-32px);}
+  100% { opacity: 1; transform: translateY(0);}
+}
+.nav-link-animate {
+  position: relative;
+  transition: color 0.2s, transform 0.2s;
+}
+.nav-link-animate:hover {
+  color: #6366f1;
+  transform: scale(1.08) translateY(-2px);
+}
+.nav-link-animate::after {
+  content: '';
+  position: absolute;
+  left: 0; right: 0; bottom: -2px;
+  height: 2px;
+  background: linear-gradient(90deg,#6366f1,#06b6d4);
+  border-radius: 2px;
+  transform: scaleX(0);
+  transition: transform 0.2s;
+}
+.nav-link-animate:hover::after {
+  transform: scaleX(1);
+}
+.navbar-logo-animate {
+  transition: transform 0.3s cubic-bezier(.4,2,.6,1);
+}
+.navbar-logo-animate:hover {
+  transform: scale(1.08) rotate(-6deg);
+}
+
+/* Navbar Bubbles Animation */
+.navbar-bubble {
+  position: absolute;
+  top: 0;
+  z-index: 51;
+  border-radius: 9999px;
+  opacity: 0.5;
+  pointer-events: none;
+}
+.navbar-bubble-1 { left: 10%; width: 16px; height: 16px; background: #6366f1; animation: bubble-float 7s linear infinite; animation-delay: 0s; }
+.navbar-bubble-2 { left: 20%; width: 12px; height: 12px; background: #06b6d4; animation: bubble-float2 8s linear infinite; animation-delay: 1s; }
+.navbar-bubble-3 { left: 30%; width: 10px; height: 10px; background: #8b5cf6; animation: bubble-float3 6s linear infinite; animation-delay: 2s; }
+.navbar-bubble-4 { left: 40%; width: 18px; height: 18px; background: #818cf8; animation: bubble-float4 9s linear infinite; animation-delay: 0.5s; }
+.navbar-bubble-5 { left: 50%; width: 14px; height: 14px; background: #22d3ee; animation: bubble-float5 7.5s linear infinite; animation-delay: 1.5s; }
+.navbar-bubble-6 { left: 60%; width: 11px; height: 11px; background: #a78bfa; animation: bubble-float6 8.5s linear infinite; animation-delay: 2.5s; }
+.navbar-bubble-7 { left: 70%; width: 13px; height: 13px; background: #06b6d4; animation: bubble-float7 7.2s linear infinite; animation-delay: 0.8s; }
+.navbar-bubble-8 { left: 80%; width: 15px; height: 15px; background: #6366f1; animation: bubble-float8 8.2s linear infinite; animation-delay: 1.2s; }
+.navbar-bubble-9 { left: 90%; width: 9px; height: 9px; background: #8b5cf6; animation: bubble-float9 6.8s linear infinite; animation-delay: 2.2s; }
+.navbar-bubble-10 { left: 95%; width: 13px; height: 13px; background: #06b6d4; animation: bubble-float10 9.5s linear infinite; animation-delay: 1.7s; }
+
+@keyframes bubble-float {
+  0% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(24px) scale(1.2); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 0.5; }
+}
+@keyframes bubble-float2 {
+  0% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(18px) scale(1.1); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 0.4; }
+}
+@keyframes bubble-float3 {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(30px) scale(1.3); opacity: 0.8; }
+  100% { transform: translateY(0) scale(1); opacity: 0.6; }
+}
+@keyframes bubble-float4 {
+  0% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(20px) scale(1.15); opacity: 0.8; }
+  100% { transform: translateY(0) scale(1); opacity: 0.5; }
+}
+@keyframes bubble-float5 {
+  0% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(28px) scale(1.18); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 0.5; }
+}
+@keyframes bubble-float6 {
+  0% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(22px) scale(1.12); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 0.4; }
+}
+@keyframes bubble-float7 {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(26px) scale(1.22); opacity: 0.8; }
+  100% { transform: translateY(0) scale(1); opacity: 0.6; }
+}
+@keyframes bubble-float8 {
+  0% { transform: translateY(0) scale(1); opacity: 0.5; }
+  50% { transform: translateY(19px) scale(1.09); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 0.5; }
+}
+@keyframes bubble-float9 {
+  0% { transform: translateY(0) scale(1); opacity: 0.4; }
+  50% { transform: translateY(16px) scale(1.08); opacity: 0.7; }
+  100% { transform: translateY(0) scale(1); opacity: 0.4; }
+}
+@keyframes bubble-float10 {
+  0% { transform: translateY(0) scale(1); opacity: 0.6; }
+  50% { transform: translateY(25px) scale(1.19); opacity: 0.8; }
+  100% { transform: translateY(0) scale(1); opacity: 0.6; }
+}
+
+.glass-card {
+  box-shadow: 0 12px 48px 0 rgba(99,102,241,0.12), 0 1.5px 8px 0 rgba(6,182,212,0.10), 0 0.5px 1.5px 0 rgba(139,92,246,0.10);
+  border: 2.5px solid transparent;
+  background-clip: padding-box;
+  position: relative;
+}
+.glass-card::before {
+  content: '';
+  position: absolute;
+  inset: -3px;
+  z-index: 0;
+  border-radius: 1.5rem;
+  background: linear-gradient(120deg, #6366f1 0%, #06b6d4 100%);
+  opacity: 0.18;
+  filter: blur(6px);
+  pointer-events: none;
+}
+.glass-card > * { position: relative; z-index: 1; }
