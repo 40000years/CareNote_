@@ -12,8 +12,17 @@ interface Report {
   imageUrl?: string;
 }
 
+// เพิ่ม type ให้กับ props ของ InlineEditableText
+interface InlineEditableTextProps {
+  value: string;
+  onChange: (val: string) => void;
+  className?: string;
+  as?: 'div' | 'textarea';
+  placeholder?: string;
+}
+
 // Inline editable text component
-function InlineEditableText({ value, onChange, className, as = "div", placeholder = "-" }) {
+function InlineEditableText({ value, onChange, className, as = "div", placeholder = "-" }: InlineEditableTextProps) {
   const [editing, setEditing] = useState(false);
   const [temp, setTemp] = useState(value);
   const ref = useRef(null);
