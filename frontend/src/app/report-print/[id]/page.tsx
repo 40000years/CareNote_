@@ -224,7 +224,7 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
     // สำหรับกรณีเข้า print preview บาง browser
     if (window.matchMedia) {
       const mediaQueryList = window.matchMedia('print');
-      const listener = (mql) => { if (mql.matches && !base64Image) fetchBase64Image(fileId); };
+      const listener = (mql: MediaQueryListEvent) => { if (mql.matches && !base64Image && fileId) fetchBase64Image(fileId); };
       mediaQueryList.addEventListener('change', listener);
       return () => {
         window.removeEventListener('beforeprint', beforePrint);
