@@ -156,31 +156,31 @@ export default function ReportPrint() {
         <div className="navbar-bubble navbar-bubble-8"></div>
         <div className="navbar-bubble navbar-bubble-9"></div>
         <div className="navbar-bubble navbar-bubble-10"></div>
-        {/* Navigation - only on screen, not print */}
+      {/* Navigation - only on screen, not print */}
         <nav className="nav-glass navbar-animate-in print:hidden">
           <div className="container-futuristic">
             <div className="flex items-center justify-between h-20">
-              <Link href="/" className="flex items-center space-x-3">
+            <Link href="/" className="flex items-center space-x-3">
                 <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-12 h-12 rounded-2xl border border-gray-300 navbar-logo navbar-logo-animate" />
                 <span className="text-2xl font-bold gradient-text-primary">
-                  CareNote
-                </span>
-              </Link>
+                CareNote
+              </span>
+            </Link>
               {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-8">
                 <Link href="/report-form" className="text-gray-600 nav-link-animate font-medium">
                   สร้างรายงานใหม่
                 </Link>
-                <button
-                  onClick={handlePrint}
+              <button
+                onClick={handlePrint}
                   className="text-gray-600 nav-link-animate font-medium flex items-center ml-4"
                   type="button"
-                >
+              >
                   <svg className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
-                  </svg>
-                  พิมพ์รายงาน
-                </button>
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
+                </svg>
+                พิมพ์รายงาน
+              </button>
               </div>
               {/* Mobile Menu Button */}
               <button
@@ -215,13 +215,13 @@ export default function ReportPrint() {
                     className="text-gray-600 nav-link-animate font-medium w-full text-center"
                     onClick={() => setMobileMenuOpen(false)}
                   >
-                    กลับไปหน้ารายงาน
-                  </Link>
-                </div>
-              </div>
-            )}
+                กลับไปหน้ารายงาน
+              </Link>
+            </div>
           </div>
-        </nav>
+            )}
+        </div>
+      </nav>
       </div>
 
       {/* Official Report Header - Same as print page */}

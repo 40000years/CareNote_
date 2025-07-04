@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef, useMemo } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 
@@ -11,6 +11,56 @@ interface Report {
   location: string;
   event: string;
   imageUrl?: string;
+}
+
+function getDriveFileId(driveUrl?: string) {
+  if (!driveUrl) return null;
+  const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
+  return fileIdMatch ? fileIdMatch[1] : null;
+}
+
+// Memory cache for base64 images (per session)
+const base64Cache = {} as Record<string, string>;
+
+function DriveImage({ imageUrl, alt }: { imageUrl?: string, alt?: string }) {
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const fileId = useMemo(() => getDriveFileId(imageUrl), [imageUrl]);
+
+  useEffect(() => {
+    let ignore = false;
+    if (!fileId) return;
+    if (base64Cache[fileId]) {
+      setImgSrc(base64Cache[fileId]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetch(`/api/drive-base64/${fileId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!ignore && data.base64 && data.mimeType) {
+          const src = `data:${data.mimeType};base64,${data.base64}`;
+          base64Cache[fileId] = src;
+          setImgSrc(src);
+        }
+      })
+      .finally(() => { if (!ignore) setLoading(false); });
+    return () => { ignore = true; };
+  }, [fileId]);
+
+  if (!fileId) return null;
+  if (loading) return <div className="w-full h-56 bg-gray-100 animate-pulse rounded-xl" />;
+  if (!imgSrc) return <div className="w-full h-56 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">ไม่พบรูป</div>;
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      className="w-full h-56 object-cover rounded-xl border"
+      style={{ background: '#f3f4f6' }}
+      loading="lazy"
+    />
+  );
 }
 
 export default function ReportsPage() {
@@ -157,12 +207,6 @@ export default function ReportsPage() {
   const testDriveUrl = "https://drive.google.com/file/d/1nEi3lTmDAAu-fVLPFH7u2VQ6dm9KWwXz/view?usp=sharing";
   const testDirectUrl = getDirectImageUrl(testDriveUrl);
 
-  function getDriveFileId(driveUrl?: string) {
-    if (!driveUrl) return null;
-    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
-    return fileIdMatch ? fileIdMatch[1] : null;
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen futuristic-bg flex items-center justify-center relative">
@@ -239,61 +283,61 @@ export default function ReportsPage() {
         <div className="navbar-bubble navbar-bubble-8"></div>
         <div className="navbar-bubble navbar-bubble-9"></div>
         <div className="navbar-bubble navbar-bubble-10"></div>
-        {/* Navigation */}
+      {/* Navigation */}
         <nav className="nav-glass navbar-animate-in">
-          <div className="container-futuristic">
-            <div className="flex items-center justify-between h-20">
-              <Link href="/" className="flex items-center space-x-3">
+        <div className="container-futuristic">
+          <div className="flex items-center justify-between h-20">
+            <Link href="/" className="flex items-center space-x-3">
                 <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-12 h-12 rounded-2xl border border-gray-300 navbar-logo navbar-logo-animate" />
-                <span className="text-2xl font-bold gradient-text-primary">
-                  CareNote
-                </span>
-              </Link>
-              
-              {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-8">
+              <span className="text-2xl font-bold gradient-text-primary">
+                CareNote
+              </span>
+            </Link>
+            
+            {/* Desktop Navigation */}
+            <div className="hidden md:flex items-center space-x-8">
                 <Link href="/report-form" className="text-gray-600 nav-link-animate font-medium">
+                สร้างรายงานใหม่
+              </Link>
+                <Link href="/" className="text-gray-600 nav-link-animate font-medium">
+                หน้าแรก
+              </Link>
+            </div>
+
+            {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+
+          {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-white/20">
+              <div className="flex flex-col space-y-4">
+                <Link 
+                  href="/report-form" 
+                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   สร้างรายงานใหม่
                 </Link>
-                <Link href="/" className="text-gray-600 nav-link-animate font-medium">
+                <Link 
+                  href="/" 
+                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   หน้าแรก
                 </Link>
               </div>
-
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
-              >
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
             </div>
-
-            {/* Mobile Navigation Menu */}
-            {mobileMenuOpen && (
-              <div className="md:hidden py-4 border-t border-white/20">
-                <div className="flex flex-col space-y-4">
-                  <Link 
-                    href="/report-form" 
-                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    สร้างรายงานใหม่
-                  </Link>
-                  <Link 
-                    href="/" 
-                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    หน้าแรก
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </nav>
+          )}
+        </div>
+      </nav>
       </div>
 
       {/* Main Content */}
@@ -435,23 +479,14 @@ export default function ReportsPage() {
               {paginatedReports.map((report, index) => {
                 const fileId = getDriveFileId(report.imageUrl);
                 return (
-                  <div
-                    key={report.id}
+                  <div 
+                    key={report.id} 
                     className={`glass-card floating-card card-hover animate-slide-up transition-all duration-500 hover:scale-105 hover:shadow-2xl group`}
                     style={{ animationDelay: `${index * 0.1}s` }}
                   >
                     {/* Image */}
                     <div className="mb-6">
-                      {fileId && (
-                        <iframe
-                          src={`https://drive.google.com/file/d/${fileId}/preview`}
-                          width="100%"
-                          height="224"
-                          style={{ border: 0, borderRadius: '16px', boxShadow: '0 2px 8px #0002' }}
-                          allow="autoplay"
-                          title={`Report Image ${report.id}`}
-                        ></iframe>
-                      )}
+                      <DriveImage imageUrl={report.imageUrl} alt={`รูปประกอบ ${report.id}`} />
                     </div>
 
                     {/* Content */}
@@ -524,7 +559,7 @@ export default function ReportsPage() {
 
                       {/* View Details Button */}
                       <div className="pt-4">
-                        <Link
+                        <Link 
                           href={`/report-print/${report.id}`}
                           className="btn-futuristic-secondary w-full text-center group transition-all duration-300 hover:scale-105 hover:shadow-lg"
                         >

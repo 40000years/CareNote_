@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState, use } from "react";
+import { useEffect, useState, use, useRef, useCallback } from "react";
 import Link from "next/link";
 
 interface Report {
@@ -10,6 +10,119 @@ interface Report {
   location: string;
   event: string;
   imageUrl?: string;
+}
+
+// Inline editable text component
+function InlineEditableText({ value, onChange, className, as = "div", placeholder = "-" }) {
+  const [editing, setEditing] = useState(false);
+  const [temp, setTemp] = useState(value);
+  const ref = useRef(null);
+
+  useEffect(() => { if (editing && ref.current) ref.current.focus(); }, [editing]);
+  useEffect(() => { setTemp(value); }, [value]);
+
+  function handleBlur() {
+    setEditing(false);
+    if (temp !== value) onChange(temp);
+  }
+  function handleKeyDown(e) {
+    if (e.key === "Enter" && (!editing || as !== "textarea" || e.ctrlKey)) {
+      setEditing(false);
+      if (temp !== value) onChange(temp);
+    } else if (e.key === "Escape") {
+      setEditing(false);
+      setTemp(value);
+    }
+  }
+
+  if (editing) {
+    if (as === "textarea") {
+      return (
+        <textarea
+          ref={ref}
+          className={className + " border border-blue-300 rounded px-2 py-1 bg-white"}
+          value={temp}
+          onChange={e => setTemp(e.target.value)}
+          onBlur={handleBlur}
+          onKeyDown={handleKeyDown}
+          rows={4}
+          style={{ minHeight: 80 }}
+        />
+      );
+    }
+    return (
+      <input
+        ref={ref}
+        className={className + " border border-blue-300 rounded px-2 py-1 bg-white"}
+        value={temp}
+        onChange={e => setTemp(e.target.value)}
+        onBlur={handleBlur}
+        onKeyDown={handleKeyDown}
+      />
+    );
+  }
+  // Not editing: show as plain text, no border, no bg
+  return (
+    <span
+      className={className + " cursor-pointer hover:bg-blue-50 transition block whitespace-pre-line min-h-[80px]"}
+      onClick={() => setEditing(true)}
+      tabIndex={0}
+      title="คลิกเพื่อแก้ไข"
+      style={{ border: "none", background: "none", padding: 0 }}
+    >
+      {value?.trim() ? value : <span className="text-gray-400">{placeholder}</span>}
+    </span>
+  );
+}
+
+// Memory cache for base64 images (per session)
+const base64Cache = {} as Record<string, string>;
+
+function getDriveFileId(driveUrl?: string) {
+  if (!driveUrl) return null;
+  const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
+  return fileIdMatch ? fileIdMatch[1] : null;
+}
+
+function DriveImage({ imageUrl, alt }: { imageUrl?: string, alt?: string }) {
+  const [imgSrc, setImgSrc] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
+  const fileId = getDriveFileId(imageUrl);
+
+  useEffect(() => {
+    let ignore = false;
+    if (!fileId) return;
+    if (base64Cache[fileId]) {
+      setImgSrc(base64Cache[fileId]);
+      setLoading(false);
+      return;
+    }
+    setLoading(true);
+    fetch(`/api/drive-base64/${fileId}`)
+      .then(res => res.json())
+      .then(data => {
+        if (!ignore && data.base64 && data.mimeType) {
+          const src = `data:${data.mimeType};base64,${data.base64}`;
+          base64Cache[fileId] = src;
+          setImgSrc(src);
+        }
+      })
+      .finally(() => { if (!ignore) setLoading(false); });
+    return () => { ignore = true; };
+  }, [fileId]);
+
+  if (!fileId) return null;
+  if (loading) return <div className="w-full h-72 bg-gray-100 animate-pulse rounded-xl" />;
+  if (!imgSrc) return <div className="w-full h-72 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">ไม่พบรูป</div>;
+  return (
+    <img
+      src={imgSrc}
+      alt={alt}
+      className="rounded-md max-w-full max-h-[320px] border"
+      style={{ margin: '0 auto', background: '#f3f4f6' }}
+      loading="lazy"
+    />
+  );
 }
 
 export default function ReportPrintPage({ params }: { params: Promise<{ id: string }> }) {
@@ -28,6 +141,9 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
   });
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+
+  const [base64Image, setBase64Image] = useState<string | null>(null);
+  const [base64Loading, setBase64Loading] = useState(false);
 
   useEffect(() => {
     fetchReport();
@@ -89,11 +205,43 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
   }
 
-  function getDriveFileId(driveUrl?: string) {
-    if (!driveUrl) return null;
-    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
-    return fileIdMatch ? fileIdMatch[1] : null;
-  }
+  // โหลด base64 image เฉพาะตอน print
+  const fetchBase64Image = useCallback(async (fileId: string) => {
+    setBase64Loading(true);
+    try {
+      const res = await fetch(`/api/drive-base64/${fileId}`);
+      const data = await res.json();
+      if (data.base64 && data.mimeType) {
+        setBase64Image(`data:${data.mimeType};base64,${data.base64}`);
+      }
+    } catch (e) {
+      setBase64Image(null);
+    } finally {
+      setBase64Loading(false);
+    }
+  }, []);
+
+  // โหลด base64 image เมื่อจะ print (หรือเมื่อเข้าโหมด print)
+  useEffect(() => {
+    const fileId = getDriveFileId(report?.imageUrl);
+    if (!fileId) return;
+    function beforePrint() {
+      if (!base64Image) fetchBase64Image(fileId);
+    }
+    window.addEventListener('beforeprint', beforePrint);
+    // สำหรับกรณีเข้า print preview บาง browser
+    if (window.matchMedia) {
+      const mediaQueryList = window.matchMedia('print');
+      const listener = (mql) => { if (mql.matches && !base64Image) fetchBase64Image(fileId); };
+      mediaQueryList.addEventListener('change', listener);
+      return () => {
+        window.removeEventListener('beforeprint', beforePrint);
+        mediaQueryList.removeEventListener('change', listener);
+      };
+    } else {
+      return () => window.removeEventListener('beforeprint', beforePrint);
+    }
+  }, [report?.imageUrl, base64Image, fetchBase64Image]);
 
   if (loading) {
     return (
@@ -152,78 +300,46 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
 
   return (
     <div className="min-h-screen bg-white print:bg-white print:text-black">
-      <div className="relative">
-        <div className="navbar-bubble navbar-bubble-1"></div>
-        <div className="navbar-bubble navbar-bubble-2"></div>
-        <div className="navbar-bubble navbar-bubble-3"></div>
-        <div className="navbar-bubble navbar-bubble-4"></div>
-        <div className="navbar-bubble navbar-bubble-5"></div>
-        <div className="navbar-bubble navbar-bubble-6"></div>
-        <div className="navbar-bubble navbar-bubble-7"></div>
-        <div className="navbar-bubble navbar-bubble-8"></div>
-        <div className="navbar-bubble navbar-bubble-9"></div>
-        <div className="navbar-bubble navbar-bubble-10"></div>
-        {/* Navigation - only on screen, not print */}
-        <nav className="nav-glass navbar-animate-in print:hidden">
+      {/* Navbar/Menu (แสดงเฉพาะบนหน้าจอ) */}
+      <div className="relative print:hidden">
+        <div className="navbar-bubble navbar-bubble-1 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-2 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-3 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-4 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-5 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-6 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-7 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-8 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-9 print:hidden"></div>
+        <div className="navbar-bubble navbar-bubble-10 print:hidden"></div>
+        <nav className="nav-glass navbar-animate-in">
           <div className="container-futuristic">
             <div className="flex items-center justify-between h-20">
               <Link href="/" className="flex items-center space-x-3">
                 <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-12 h-12 rounded-2xl border border-gray-300 navbar-logo navbar-logo-animate" />
-                <span className="text-2xl font-bold gradient-text-primary">
-                  CareNote
-                </span>
+                <span className="text-2xl font-bold gradient-text-primary">CareNote</span>
               </Link>
-              {/* Desktop Navigation */}
               <div className="hidden md:flex items-center space-x-8">
-                <Link href="/report-form" className="text-gray-600 nav-link-animate font-medium">
-                  สร้างรายงานใหม่
-                </Link>
-                <button
-                  onClick={handlePrint}
-                  className="text-gray-600 nav-link-animate font-medium flex items-center ml-4"
-                  type="button"
-                >
+                <Link href="/report-form" className="text-gray-600 nav-link-animate font-medium">สร้างรายงานใหม่</Link>
+                <button onClick={handlePrint} className="text-gray-600 nav-link-animate font-medium flex items-center ml-4" type="button">
                   <svg className="w-6 h-6 mr-2 group-hover:scale-110 transition-transform duration-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 17h2a2 2 0 002-2v-4a2 2 0 00-2-2H5a2 2 0 00-2 2v4a2 2 0 002 2h2m2 4h6a2 2 0 002-2v-4a2 2 0 00-2-2H9a2 2 0 00-2 2v4a2 2 0 002 2zm8-12V5a2 2 0 00-2-2H9a2 2 0 00-2 2v4h10z" />
                   </svg>
                   พิมพ์รายงาน
                 </button>
               </div>
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
-              >
+              <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20">
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
                 </svg>
               </button>
             </div>
-            {/* Mobile Navigation Menu */}
             {mobileMenuOpen && (
               <div className="md:hidden py-4 border-t border-white/20">
                 <div className="flex flex-col space-y-4">
-                  <Link 
-                    href="/report-form" 
-                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    สร้างรายงานใหม่
-                  </Link>
-                  <button
-                    onClick={() => { setMobileMenuOpen(false); handlePrint(); }}
-                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
-                    type="button"
-                  >
-                    พิมพ์รายงาน
-                  </button>
-                  <Link 
-                    href="/reports" 
-                    className="text-gray-600 nav-link-animate font-medium w-full text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    กลับไปหน้ารายงาน
-                  </Link>
+                  <Link href="/report-form" className="text-gray-600 nav-link-animate font-medium w-full text-center" onClick={() => setMobileMenuOpen(false)}>สร้างรายงานใหม่</Link>
+                  <button onClick={() => { setMobileMenuOpen(false); handlePrint(); }} className="text-gray-600 nav-link-animate font-medium w-full text-center" type="button">พิมพ์รายงาน</button>
+                  <Link href="/reports" className="text-gray-600 nav-link-animate font-medium w-full text-center" onClick={() => setMobileMenuOpen(false)}>กลับไปหน้ารายงาน</Link>
                 </div>
               </div>
             )}
@@ -231,110 +347,55 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
         </nav>
       </div>
 
-      {/* Official Print Header - Compact and professional */}
-      <div className="max-w-4xl mx-auto pt-4 pb-3 border-b-2 border-gray-400 mb-4 print:mb-3 flex flex-col items-center">
-        <div className="flex flex-col items-center gap-2 mb-2">
-          <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-10 h-10 rounded-full border border-gray-400 print:w-8 print:h-8" />
-          <div className="text-center">
-            <div className="text-xl font-bold tracking-wide text-gray-800 print:text-lg">โรงเรียนสิงห์บุรี</div>
-          </div>
-        </div>
-        <div className="text-base font-bold mt-1 text-gray-800 print:text-sm border-t border-gray-300 pt-1">รายงานการปฏิบัติหน้าที่</div>
+      {/* ฟอร์มราชการ: โลโก้และหัวข้อ */}
+      <div className="max-w-[800px] mx-auto pt-6 pb-1 flex flex-col items-center print:pt-2 print:pb-0">
+        <img src="/singburi-logo.png" alt="โลโก้" className="w-20 h-20 mb-1 print:w-16 print:h-16" />
+        <div className="text-2xl font-bold text-center mt-1 mb-0.5 print:text-xl">รายงานการปฏิบัติหน้าที่ดูแลนักเรียนในวันทำการ</div>
+        <div className="text-base font-medium text-center mt-0 mb-0.5 print:text-sm">โรงเรียนสิงห์บุรี</div>
+        <div className="text-base font-medium text-center mt-0 print:text-sm">วันที่ {editData.date ? formatDate(editData.date) : "-"}</div>
       </div>
 
-      {/* Main Content - Compact layout */}
-      <div className="max-w-4xl mx-auto px-4 pb-4 print:pb-2">
-        {/* Info Section - Compact spacing */}
-        <div className="mb-4 print:mb-3">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mb-3 print:gap-3">
-            <div className="space-y-1">
-              <div className="font-bold text-gray-800 text-base print:text-sm">วันที่ปฏิบัติหน้าที่</div>
-              <input
-                type="date"
-                name="date"
-                value={editData.date}
-                onChange={handleEditChange}
-                className="input-futuristic w-full border-b border-gray-400 pb-1 bg-white print:bg-white print:text-sm font-medium"
-                readOnly={false}
-              />
-            </div>
-            <div className="space-y-1">
-              <div className="font-bold text-gray-800 text-base print:text-sm">เวลาการปฏิบัติหน้าที่</div>
-              <input
-                type="text"
-                name="time"
-                value={editData.time}
-                onChange={handleEditChange}
-                className="input-futuristic w-full border-b border-gray-400 pb-1 bg-white print:bg-white print:text-sm font-medium"
-                readOnly={false}
-              />
-            </div>
-            <div className="space-y-1">
-              <div className="font-bold text-gray-800 text-base print:text-sm">ชื่อผู้ปฏิบัติหน้าที่</div>
-              <input
-                type="text"
-                name="name"
-                value={editData.name}
-                onChange={handleEditChange}
-                className="input-futuristic w-full border-b border-gray-400 pb-1 bg-white print:bg-white print:text-sm font-medium"
-                readOnly={false}
-              />
-            </div>
-            <div className="space-y-1">
-              <div className="font-bold text-gray-800 text-base print:text-sm">สถานที่ปฏิบัติงาน</div>
-              <input
-                type="text"
-                name="location"
-                value={editData.location}
-                onChange={handleEditChange}
-                className="input-futuristic w-full border-b border-gray-400 pb-1 bg-white print:bg-white print:text-sm font-medium"
-                readOnly={false}
-              />
-            </div>
-          </div>
-        </div>
-
-        {/* Event Section - Compact */}
-        <div className="mb-4 print:mb-3">
-          <div className="font-bold text-gray-800 text-base mb-2 print:text-sm">รายละเอียดเหตุการณ์</div>
-          <textarea
-            name="event"
-            value={editData.event}
-            onChange={handleEditChange}
-            className="input-futuristic w-full border border-gray-300 rounded-lg p-3 min-h-[80px] text-sm whitespace-pre-line bg-white print:bg-white print:text-sm print:min-h-[60px] font-medium"
-            readOnly={false}
+      {/* รายชื่อผู้ปฏิบัติหน้าที่ */}
+      <div className="max-w-[800px] mx-auto mt-4 print:mt-2">
+        <div className="font-bold text-base print:text-sm mb-1">ผู้ปฏิบัติหน้าที่เวรประจำวัน ดังนี้</div>
+        <div className="ml-6 print:ml-8 text-base print:text-sm">
+          <InlineEditableText
+            value={editData.name}
+            onChange={val => setEditData(d => ({ ...d, name: val }))}
+            className=""
+            placeholder="............................................."
           />
         </div>
+      </div>
 
-        {/* Image Section - Compact */}
-        {report.imageUrl && (
-          <div className="mb-4 print:mb-3">
-            <div className="font-bold text-gray-800 text-base mb-2 print:text-sm">รูปภาพประกอบ</div>
-            <div className="flex justify-center">
-              {getDriveFileId(report.imageUrl) && (
-                <iframe
-                  src={`https://drive.google.com/file/d/${getDriveFileId(report.imageUrl)}/preview`}
-                  width="100%"
-                  height="224"
-                  style={{ border: 0, borderRadius: '16px', boxShadow: '0 2px 8px #0002' }}
-                  allow="autoplay"
-                  title="Report Image"
-                ></iframe>
-              )}
-            </div>
-          </div>
-        )}
+      {/* เนื้อหาเหตุการณ์ */}
+      <div className="max-w-[800px] mx-auto mt-6 print:mt-4">
+        <div className="font-bold text-base print:text-sm mb-1">เหตุการณ์โดยภาพรวม มีเหตุการณ์เกิดขึ้น อธิบาย</div>
+        <InlineEditableText
+          value={editData.event}
+          onChange={val => setEditData(d => ({ ...d, event: val }))}
+          className="border border-gray-300 rounded-md p-4 min-h-[80px] text-base print:text-sm whitespace-pre-line bg-white print:bg-white w-full"
+          as="textarea"
+          placeholder="............................................."
+        />
+      </div>
 
-        {/* Signature/Footer Section - Compact */}
-        <div className="mt-6 flex flex-col items-end print:mt-4 border-t border-gray-300 pt-3 print:pt-2">
-          <div className="mb-3 print:mb-2 text-right">
-            <div className="text-gray-800 mb-1 print:text-sm font-medium">ลงชื่อ....................................................</div>
-            <div className="text-gray-800 mb-1 print:text-sm">(....................................................)</div>
-            <div className="text-gray-800 print:text-sm">วันที่ {new Date().toLocaleDateString("th-TH")}</div>
+      {/* รูปภาพกิจกรรม */}
+      {report.imageUrl && (
+        <div className="max-w-[800px] mx-auto mt-6 print:mt-4">
+          <div className="font-bold text-base print:text-sm mb-1">รูปภาพประกอบ</div>
+          <div className="flex justify-center">
+            <DriveImage imageUrl={report.imageUrl} alt="Report Image" />
           </div>
-          <div className="text-xs text-gray-500 print:text-xs border-t border-gray-200 pt-1">
-            เอกสารนี้สร้างจากระบบ CareNote | พิมพ์เมื่อ {new Date().toLocaleDateString("th-TH")} {new Date().toLocaleTimeString("th-TH", { hour: '2-digit', minute: '2-digit' })}
-          </div>
+        </div>
+      )}
+
+      {/* ลายเซ็น/ผู้รับรอง */}
+      <div className="max-w-[800px] mx-auto mt-10 print:mt-8 flex flex-col items-end">
+        <div className="mb-2 text-right">
+          <div className="text-base print:text-sm mb-1">ลงชื่อ............................................................</div>
+          <div className="text-base print:text-sm mb-1">(............................................................)</div>
+          <div className="text-base print:text-sm">ตำแหน่ง....................................................</div>
         </div>
       </div>
     </div>

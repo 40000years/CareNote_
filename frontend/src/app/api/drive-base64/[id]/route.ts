@@ -9,10 +9,10 @@ const auth = new google.auth.GoogleAuth({
   scopes: ['https://www.googleapis.com/auth/drive.readonly'],
 });
 
-export async function GET(request: Request, { params }: { params: { id: string } }) {
+export async function GET(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const drive = google.drive({ version: 'v3', auth });
-    const fileId = params.id;
+    const { id: fileId } = await params;
 
     // Get file metadata to know mimeType
     const meta = await drive.files.get({ fileId, fields: 'mimeType' });

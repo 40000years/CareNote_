@@ -2,6 +2,7 @@
 import { useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
+import imageCompression from "browser-image-compression";
 
 const TIME_OPTIONS = [
   "07.00 – 08.00 น.",
@@ -51,12 +52,20 @@ export default function ReportForm() {
   function handleImageChange(e: React.ChangeEvent<HTMLInputElement>) {
     const file = e.target.files?.[0];
     if (file) {
-      setImage(file);
-      const reader = new FileReader();
-      reader.onload = (e) => {
-        setImagePreview(e.target?.result as string);
+      // Resize/compress image before preview and upload
+      const options = {
+        maxSizeMB: 0.3, // ปรับขนาดไฟล์เป้าหมาย (MB)
+        maxWidthOrHeight: 800, // ปรับขนาดภาพ
+        useWebWorker: true,
       };
-      reader.readAsDataURL(file);
+      imageCompression(file, options).then(compressedFile => {
+        setImage(compressedFile);
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          setImagePreview(e.target?.result as string);
+        };
+        reader.readAsDataURL(compressedFile);
+      });
     }
   }
 
@@ -134,58 +143,58 @@ export default function ReportForm() {
         <div className="navbar-bubble navbar-bubble-8"></div>
         <div className="navbar-bubble navbar-bubble-9"></div>
         <div className="navbar-bubble navbar-bubble-10"></div>
-        {/* Navigation */}
+      {/* Navigation */}
         <nav className="nav-glass navbar-animate-in">
-          <div className="container-futuristic">
-            <div className="flex items-center justify-between h-20">
-              <Link href="/" className="flex items-center space-x-3">
+        <div className="container-futuristic">
+          <div className="flex items-center justify-between h-20">
+            <Link href="/" className="flex items-center space-x-3">
                 <img src="/singburi-logo.png" alt="Singburi School Logo" className="w-12 h-12 rounded-2xl border border-gray-300 navbar-logo navbar-logo-animate" />
-                <span className="text-2xl font-bold gradient-text-primary">
-                  CareNote
-                </span>
-              </Link>
+              <span className="text-2xl font-bold gradient-text-primary">
+                CareNote
+              </span>
+            </Link>
               {/* Desktop Navigation */}
-              <div className="hidden md:flex items-center space-x-8">
+            <div className="hidden md:flex items-center space-x-8">
                 <Link href="/reports" className="text-gray-600 nav-link-animate font-medium">
+                รายงานทั้งหมด
+              </Link>
+                <Link href="/" className="text-gray-600 nav-link-animate font-medium">
+                หน้าแรก
+              </Link>
+            </div>
+              {/* Mobile Menu Button */}
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
+            >
+              <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            </button>
+          </div>
+            {/* Mobile Navigation Menu */}
+          {mobileMenuOpen && (
+            <div className="md:hidden py-4 border-t border-white/20">
+              <div className="flex flex-col space-y-4">
+                <Link 
+                  href="/reports" 
+                  className="text-gray-600 hover:text-indigo-600 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-white/10"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   รายงานทั้งหมด
                 </Link>
-                <Link href="/" className="text-gray-600 nav-link-animate font-medium">
+                <Link 
+                  href="/" 
+                  className="btn-futuristic-secondary w-full text-center"
+                  onClick={() => setMobileMenuOpen(false)}
+                >
                   หน้าแรก
                 </Link>
               </div>
-              {/* Mobile Menu Button */}
-              <button
-                onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-                className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
-              >
-                <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 6h16M4 12h16M4 18h16" />
-                </svg>
-              </button>
             </div>
-            {/* Mobile Navigation Menu */}
-            {mobileMenuOpen && (
-              <div className="md:hidden py-4 border-t border-white/20">
-                <div className="flex flex-col space-y-4">
-                  <Link 
-                    href="/reports" 
-                    className="text-gray-600 hover:text-indigo-600 transition-colors font-medium px-4 py-2 rounded-lg hover:bg-white/10"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    รายงานทั้งหมด
-                  </Link>
-                  <Link 
-                    href="/" 
-                    className="btn-futuristic-secondary w-full text-center"
-                    onClick={() => setMobileMenuOpen(false)}
-                  >
-                    หน้าแรก
-                  </Link>
-                </div>
-              </div>
-            )}
-          </div>
-        </nav>
+          )}
+        </div>
+      </nav>
       </div>
       {/* Main Content */}
       <div className="flex flex-col items-center justify-center py-12 relative z-10">
@@ -198,142 +207,142 @@ export default function ReportForm() {
         </div>
         <div className="glass-card max-w-2xl w-full mx-auto p-8 rounded-3xl shadow-2xl border border-indigo-100 animate-fade-in relative z-10">
           <h1 className="text-4xl font-extrabold text-indigo-700 mb-8 text-center drop-shadow-lg tracking-tight">
-            สร้างรายงานใหม่
-          </h1>
+              สร้างรายงานใหม่
+            </h1>
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="block text-lg font-semibold text-gray-700">
-                  วันที่ปฏิบัติหน้าที่ *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="date"
-                    name="date"
-                    value={form.date}
-                    onChange={handleChange}
-                    required
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="block text-lg font-semibold text-gray-700">
+                    วันที่ปฏิบัติหน้าที่ *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="date"
+                      name="date"
+                      value={form.date}
+                      onChange={handleChange}
+                      required
                     className="input-futuristic-with-icon rounded-xl shadow-inner border border-gray-300 focus:border-indigo-300 focus:ring-indigo-500"
-                  />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <label className="block text-lg font-semibold text-gray-700">
-                  เวลาการปฏิบัติหน้าที่ *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
-                    </svg>
+                    />
                   </div>
-                  <select
-                    name="time"
-                    value={form.time}
-                    onChange={handleChange}
-                    required
+                </div>
+                <div className="space-y-3">
+                  <label className="block text-lg font-semibold text-gray-700">
+                    เวลาการปฏิบัติหน้าที่ *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
+                      </svg>
+                    </div>
+                    <select
+                      name="time"
+                      value={form.time}
+                      onChange={handleChange}
+                      required
                     className="input-futuristic-with-icon appearance-none pr-8 rounded-xl shadow-inner border border-gray-300 focus:border-indigo-300 focus:ring-indigo-500"
-                  >
-                    <option value="" disabled>เลือกช่วงเวลา</option>
-                    {TIME_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
+                    >
+                      <option value="" disabled>เลือกช่วงเวลา</option>
+                      {TIME_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
-            </div>
-            <div className="grid md:grid-cols-2 gap-8">
-              <div className="space-y-3">
-                <label className="block text-lg font-semibold text-gray-700">
-                  ชื่อผู้ปฏิบัติหน้าที่ *
-                </label>
-                <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
-                    <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
-                    </svg>
-                  </div>
-                  <input
-                    type="text"
-                    name="name"
-                    value={form.name}
-                    onChange={handleChange}
-                    required
-                    placeholder="ชื่อ-นามสกุล"
+              <div className="grid md:grid-cols-2 gap-8">
+                <div className="space-y-3">
+                  <label className="block text-lg font-semibold text-gray-700">
+                    ชื่อผู้ปฏิบัติหน้าที่ *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5.121 17.804A13.937 13.937 0 0112 16c2.5 0 4.847.655 6.879 1.804M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <input
+                      type="text"
+                      name="name"
+                      value={form.name}
+                      onChange={handleChange}
+                      required
+                      placeholder="ชื่อ-นามสกุล"
                     className="input-futuristic-with-icon rounded-xl shadow-inner border border-gray-300 focus:border-indigo-300 focus:ring-indigo-500"
-                  />
+                    />
+                  </div>
+                </div>
+                <div className="space-y-3">
+                  <label className="block text-lg font-semibold text-gray-700">
+                    สถานที่ปฏิบัติงาน *
+                  </label>
+                  <div className="relative">
+                    <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                      <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      </svg>
+                    </div>
+                    <select
+                      name="location"
+                      value={form.location}
+                      onChange={handleChange}
+                      required
+                    className="input-futuristic-with-icon appearance-none pr-8 rounded-xl shadow-inner border border-gray-300 focus:border-indigo-300 focus:ring-indigo-500"
+                    >
+                      <option value="" disabled>เลือกสถานที่</option>
+                      {LOCATION_OPTIONS.map((option) => (
+                        <option key={option} value={option}>{option}</option>
+                      ))}
+                    </select>
+                  </div>
                 </div>
               </div>
               <div className="space-y-3">
                 <label className="block text-lg font-semibold text-gray-700">
-                  สถานที่ปฏิบัติงาน *
+                  รายละเอียดเหตุการณ์ *
                 </label>
                 <div className="relative">
-                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                  <div className="absolute top-4 left-4 flex items-start pointer-events-none">
                     <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17.657 16.657L13.414 20.9a2 2 0 01-2.828 0l-4.243-4.243a8 8 0 1111.314 0z" />
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h6a2 2 0 012 2v12a2 2 0 01-2 2z" />
                     </svg>
                   </div>
-                  <select
-                    name="location"
-                    value={form.location}
+                  <textarea
+                    name="event"
+                    value={form.event}
                     onChange={handleChange}
                     required
-                    className="input-futuristic-with-icon appearance-none pr-8 rounded-xl shadow-inner border border-gray-300 focus:border-indigo-300 focus:ring-indigo-500"
-                  >
-                    <option value="" disabled>เลือกสถานที่</option>
-                    {LOCATION_OPTIONS.map((option) => (
-                      <option key={option} value={option}>{option}</option>
-                    ))}
-                  </select>
-                </div>
-              </div>
-            </div>
-            <div className="space-y-3">
-              <label className="block text-lg font-semibold text-gray-700">
-                รายละเอียดเหตุการณ์ *
-              </label>
-              <div className="relative">
-                <div className="absolute top-4 left-4 flex items-start pointer-events-none">
-                  <svg className="h-6 w-6 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 21H5a2 2 0 01-2-2V7a2 2 0 012-2h4l2-2h6a2 2 0 012 2v12a2 2 0 01-2 2z" />
-                  </svg>
-                </div>
-                <textarea
-                  name="event"
-                  value={form.event}
-                  onChange={handleChange}
-                  required
-                  rows={6}
-                  placeholder="รายละเอียดการปฏิบัติหน้าที่ เหตุการณ์ที่เกิดขึ้น และข้อสังเกตสำคัญ..."
+                    rows={6}
+                    placeholder="รายละเอียดการปฏิบัติหน้าที่ เหตุการณ์ที่เกิดขึ้น และข้อสังเกตสำคัญ..."
                   className="textarea-futuristic-with-icon rounded-xl shadow-inner border border-gray-300 focus:border-indigo-300 focus:ring-indigo-500"
-                />
+                  />
+                </div>
               </div>
-            </div>
             <div className="mb-4">
               <label className="block text-lg font-semibold text-gray-700 mb-2">
                 รูปภาพประกอบ (Optional)
-              </label>
+                </label>
               <div className="flex flex-col items-center justify-center p-8 bg-gradient-to-br from-indigo-50 to-cyan-50 rounded-2xl border-2 border-dashed border-indigo-200 shadow-inner">
-                <input
-                  type="file"
+                  <input
+                    type="file"
                   accept="image/*"
-                  onChange={handleImageChange}
+                    onChange={handleImageChange}
                   ref={fileInputRef}
                   className="mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-indigo-400 file:to-cyan-400 file:text-white hover:file:from-indigo-500 hover:file:to-cyan-500 transition-all duration-200"
-                />
-                {imagePreview ? (
+                  />
+                  {imagePreview ? (
                   <img src={imagePreview} alt="Preview" className="w-40 h-40 object-cover rounded-xl border-2 border-indigo-200 shadow-md mb-2" />
-                ) : (
+                  ) : (
                   <svg className="w-16 h-16 text-indigo-400 animate-bounce mb-4" fill="none" stroke="currentColor" strokeWidth="2" viewBox="0 0 24 24">
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 4v16m8-8H4" />
-                  </svg>
+                        </svg>
                 )}
                 <p className="text-gray-500 text-lg font-medium mb-2">{imagePreview ? 'เลือกรูปใหม่ได้อีกครั้ง' : 'ยังไม่ได้เลือกรูปภาพ'}</p>
                 <p className="text-gray-400 text-sm">(รองรับไฟล์ภาพ JPG, PNG, GIF ขนาดไม่เกิน 5MB)</p>
@@ -347,7 +356,7 @@ export default function ReportForm() {
                   <div className="absolute left-1/4 top-10 w-32 h-32 bg-cyan-300/30 rounded-full blur-3xl animate-float-particle2"></div>
                   <div className="absolute right-1/4 bottom-10 w-24 h-24 bg-indigo-400/20 rounded-full blur-2xl animate-float-particle3"></div>
                   <div className="absolute left-1/2 top-1/2 w-20 h-20 bg-white/40 rounded-full blur-2xl animate-float-particle"></div>
-                </div>
+                      </div>
                 <div className="glass-card max-w-md w-full mx-auto p-10 rounded-3xl shadow-2xl border border-indigo-100 animate-fade-in relative z-10 flex flex-col items-center">
                   <div className="relative mb-8">
                     <div className="w-20 h-20 rounded-full bg-gradient-to-tr from-indigo-400 via-cyan-400 to-indigo-300 animate-spin-slow shadow-xl flex items-center justify-center">
@@ -361,18 +370,18 @@ export default function ReportForm() {
                   <h2 className="text-2xl font-bold text-indigo-700 mb-2 drop-shadow-lg">{progress || 'กำลังโหลดข้อมูล...'}</h2>
                   <p className="text-gray-500 text-lg">โปรดรอสักครู่</p>
                 </div>
-              </div>
-            )}
-            {!loading && (
-              <button
-                type="submit"
+                </div>
+              )}
+              {!loading && (
+                  <button
+                    type="submit"
                 className="w-full py-3 px-6 rounded-xl bg-gradient-to-r from-indigo-500 to-cyan-400 text-white font-bold text-lg shadow-lg hover:from-indigo-600 hover:to-cyan-500 active:scale-95 transition-all duration-200 mt-6"
-                disabled={loading}
-              >
+                    disabled={loading}
+                  >
                 {loading ? 'กำลังบันทึก...' : 'บันทึกรายงาน'}
-              </button>
-            )}
-          </form>
+                  </button>
+              )}
+            </form>
         </div>
       </div>
     </div>
