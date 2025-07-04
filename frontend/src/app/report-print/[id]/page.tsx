@@ -25,9 +25,15 @@ interface InlineEditableTextProps {
 function InlineEditableText({ value, onChange, className, as = "div", placeholder = "-" }: InlineEditableTextProps) {
   const [editing, setEditing] = useState(false);
   const [temp, setTemp] = useState(value);
-  const ref = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
+  const inputRef = useRef<HTMLInputElement>(null);
+  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
-  useEffect(() => { if (editing && ref.current) ref.current.focus(); }, [editing]);
+  useEffect(() => {
+    if (editing) {
+      if (as === "textarea" && textareaRef.current) textareaRef.current.focus();
+      if (as !== "textarea" && inputRef.current) inputRef.current.focus();
+    }
+  }, [editing]);
   useEffect(() => { setTemp(value); }, [value]);
 
   function handleBlur() {
@@ -48,7 +54,7 @@ function InlineEditableText({ value, onChange, className, as = "div", placeholde
     if (as === "textarea") {
       return (
         <textarea
-          ref={ref}
+          ref={textareaRef}
           className={className + " border border-blue-300 rounded px-2 py-1 bg-white"}
           value={temp}
           onChange={e => setTemp(e.target.value)}
@@ -61,7 +67,7 @@ function InlineEditableText({ value, onChange, className, as = "div", placeholde
     }
     return (
       <input
-        ref={ref}
+        ref={inputRef}
         className={className + " border border-blue-300 rounded px-2 py-1 bg-white"}
         value={temp}
         onChange={e => setTemp(e.target.value)}
