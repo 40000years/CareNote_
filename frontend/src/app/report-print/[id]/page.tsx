@@ -345,6 +345,9 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
         <div className="text-2xl font-bold text-center mt-1 mb-0.5 print:text-xl">รายงานการปฏิบัติหน้าที่ดูแลนักเรียนในวันทำการ</div>
         <div className="text-base font-medium text-center mt-0 mb-0.5 print:text-sm">โรงเรียนสิงห์บุรี</div>
         <div className="text-base font-medium text-center mt-0 print:text-sm">วันที่ {editData.date ? formatDate(editData.date) : "-"}</div>
+        {editData.time && (
+          <div className="text-base font-medium text-center mt-0 print:text-sm">ช่วงเวลา {editData.time}</div>
+        )}
       </div>
 
       {/* รายชื่อผู้ปฏิบัติหน้าที่ */}
