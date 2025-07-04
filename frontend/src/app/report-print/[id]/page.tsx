@@ -348,6 +348,9 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
         {editData.time && (
           <div className="text-base font-medium text-center mt-0 print:text-sm">ช่วงเวลา {editData.time}</div>
         )}
+        {editData.location && (
+          <div className="text-base font-medium text-center mt-0 print:text-sm">บริเวณ {editData.location}</div>
+        )}
       </div>
 
       {/* รายชื่อผู้ปฏิบัติหน้าที่ */}
