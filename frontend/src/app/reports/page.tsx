@@ -24,31 +24,29 @@ const base64Cache = {} as Record<string, string>;
 function DriveImage({ imageUrl, alt }: { imageUrl?: string, alt?: string }) {
   const [imgSrc, setImgSrc] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const fileId = useMemo(() => getDriveFileId(imageUrl), [imageUrl]);
 
   useEffect(() => {
     let ignore = false;
-    if (!fileId) return;
-    if (base64Cache[fileId]) {
-      setImgSrc(base64Cache[fileId]);
+    if (!imageUrl) return;
+    if (base64Cache[imageUrl]) {
+      setImgSrc(base64Cache[imageUrl]);
       setLoading(false);
       return;
     }
     setLoading(true);
-    fetch(`/api/drive-base64/${fileId}`)
+    fetch(`/api/drive-base64/${imageUrl}`)
       .then(res => res.json())
       .then(data => {
         if (!ignore && data.base64 && data.mimeType) {
           const src = `data:${data.mimeType};base64,${data.base64}`;
-          base64Cache[fileId] = src;
+          base64Cache[imageUrl] = src;
           setImgSrc(src);
         }
       })
       .finally(() => { if (!ignore) setLoading(false); });
     return () => { ignore = true; };
-  }, [fileId]);
+  }, [imageUrl]);
 
-  if (!fileId) return null;
   if (loading) return <div className="w-full h-56 bg-gray-100 animate-pulse rounded-xl" />;
   if (!imgSrc) return <div className="w-full h-56 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">ไม่พบรูป</div>;
   return (
@@ -426,7 +424,6 @@ export default function ReportsPage() {
           <>
             <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
               {paginatedReports.map((report, index) => {
-                const fileId = getDriveFileId(report.imageUrl);
                 return (
                   <div 
                     key={report.id} 

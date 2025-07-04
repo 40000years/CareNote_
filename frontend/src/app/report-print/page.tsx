@@ -1,6 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useSearchParams } from "next/navigation";
 import Link from 'next/link';
 
 interface Report {
@@ -19,7 +19,6 @@ export default function ReportPrint() {
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
-  const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean | undefined>(undefined);
 
   useEffect(() => {
