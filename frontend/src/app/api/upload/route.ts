@@ -45,23 +45,27 @@ export async function POST(request: Request) {
     const fileUrl = `https://drive.google.com/file/d/${fileId}/view`;
 
     // ตรวจสอบ permission ก่อน ถ้ายังไม่มี anyone ให้สร้าง
-    const permList = await drive.permissions.list({ fileId });
-    const hasAnyone = permList.data.permissions?.some(p => p.type === 'anyone');
-    if (!hasAnyone) {
-      const permRes = await drive.permissions.create({
-        fileId,
-        requestBody: {
-          role: 'reader',
-          type: 'anyone',
-        },
-      });
-      console.log('Permission create response:', permRes.data);
+    if (typeof fileId === 'string') {
+      const permList = await drive.permissions.list({ fileId });
+      const hasAnyone = permList.data.permissions?.some(p => p.type === 'anyone');
+      if (!hasAnyone) {
+        const permRes = await drive.permissions.create({
+          fileId,
+          requestBody: {
+            role: 'reader',
+            type: 'anyone',
+          },
+        });
+        console.log('Permission create response:', permRes.data);
+      } else {
+        console.log('Permission already set to anyone');
+      }
+      // log permission list อีกครั้ง
+      const permListAfter = await drive.permissions.list({ fileId });
+      console.log('Permission list after:', permListAfter.data);
     } else {
-      console.log('Permission already set to anyone');
+      throw new Error('Invalid fileId');
     }
-    // log permission list อีกครั้ง
-    const permListAfter = await drive.permissions.list({ fileId });
-    console.log('Permission list after:', permListAfter.data);
 
     return NextResponse.json({ 
       success: true,
