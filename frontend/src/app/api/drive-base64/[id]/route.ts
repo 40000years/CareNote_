@@ -28,7 +28,7 @@ export async function GET(request: Request, { params }: { params: Promise<{ id: 
     // Convert to base64
     const base64 = buffer.toString('base64');
     return NextResponse.json({ base64, mimeType });
-  } catch (error) {
+  } catch {
     return NextResponse.json({ error: 'Failed to fetch file' }, { status: 500 });
   }
 } 
