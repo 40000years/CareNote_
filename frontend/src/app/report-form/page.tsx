@@ -69,11 +69,6 @@ export default function ReportForm() {
     }
   }
 
-  function getDriveFileId(url: string) {
-    const match = url.match(/\/d\/([\w-]+)/) || url.match(/id=([\w-]+)/);
-    return match ? match[1] : null;
-  }
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);

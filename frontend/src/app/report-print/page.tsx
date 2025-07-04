@@ -79,13 +79,6 @@ export default function ReportPrint() {
     return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
   }
 
-  // เพิ่มฟังก์ชัน extract fileId
-  function getDriveFileId(url: string | undefined | null) {
-    if (!url) return null;
-    const match = url.match(/\/d\/([\w-]+)/) || url.match(/id=([\w-]+)/);
-    return match ? match[1] : null;
-  }
-
   if (loading) {
     return (
       <div className="min-h-screen futuristic-bg flex items-center justify-center relative">
