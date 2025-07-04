@@ -164,7 +164,7 @@ export default function ReportPrint() {
               </div>
               {/* Mobile Menu Button */}
               <button
-                onClick={() => setMobileMenuOpen && setMobileMenuOpen((v:boolean) => !v)}
+                onClick={() => setMobileMenuOpen((v) => !(v ?? false))}
                 className="md:hidden p-2 rounded-lg bg-white/10 backdrop-blur-sm border border-white/20"
               >
                 <svg className="w-6 h-6 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
