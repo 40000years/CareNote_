@@ -25,7 +25,7 @@ interface InlineEditableTextProps {
 function InlineEditableText({ value, onChange, className, as = "div", placeholder = "-" }: InlineEditableTextProps) {
   const [editing, setEditing] = useState(false);
   const [temp, setTemp] = useState(value);
-  const ref = useRef(null);
+  const ref = useRef<HTMLInputElement | HTMLTextAreaElement | null>(null);
 
   useEffect(() => { if (editing && ref.current) ref.current.focus(); }, [editing]);
   useEffect(() => { setTemp(value); }, [value]);
