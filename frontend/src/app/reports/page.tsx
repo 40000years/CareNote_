@@ -1,7 +1,6 @@
 "use client";
-import { useEffect, useState, useRef, useMemo } from "react";
+import { useEffect, useState, useMemo } from "react";
 import Link from "next/link";
-import { useRouter } from "next/navigation";
 
 interface Report {
   id: string;
@@ -73,7 +72,6 @@ export default function ReportsPage() {
   const [searchTerm, setSearchTerm] = useState("");
   const [dateFilter, setDateFilter] = useState("");
   const [locationFilter, setLocationFilter] = useState("");
-  const [showFilters, setShowFilters] = useState(false);
   const [timeFilter, setTimeFilter] = useState("");
 
   // Pagination state
@@ -83,7 +81,6 @@ export default function ReportsPage() {
   const paginatedReports = filteredReports.slice((currentPage - 1) * pageSize, currentPage * pageSize);
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
-  const router = useRouter();
 
   useEffect(() => {
     fetchReports();
@@ -158,54 +155,6 @@ export default function ReportsPage() {
     setLocationFilter("");
     setTimeFilter("");
   }
-
-  // Get unique locations for filter dropdown
-  const uniqueLocations = [...new Set(reports.map(report => report.location))];
-  const uniqueDates = [...new Set(reports.map(report => report.date))];
-
-  const TIME_OPTIONS = [
-    "07.00 – 08.00 น.",
-    "07.30 – 08.20 น.",
-    "08.00 – 09.00 น.",
-    "11.05 – 11.55 น.",
-    "12.00 – 12.50 น.",
-    "15.35 – 17.00 น."
-  ];
-
-  const LOCATION_OPTIONS = [
-    "บริเวณสะพานลอย",
-    "บริเวณจุดรับ-ส่งนักเรียนหน้าโรงเรียน(ป้ายโรงเรียน)",
-    "หลังป้อมตำรวจและแนวกำแพงด้านนอกโรงเรียนด้านที่ติดกับสนามกีฬาจังหวัดสิงห์บุรี",
-    "บริเวณประตูเข้า-ออกหน้าโรงเรียน",
-    "บริเวณประตูเข้า-ออกโรงเก็บรถจักรยานยนต์",
-    "บริเวณถนนหน้าพระพุทธสิหิงมงคล",
-    "บริเวณสี่แยกอาคาร ๕ และอาคาร ๕",
-    "ดูแลนักเรียนมาสาย",
-    "โรงอาหาร คาบเรียนที่ ๕",
-    "โรงอาหาร คาบเรียนที่ ๖",
-    "สนามกีฬาจังหวัดสิงห์บุรี",
-    "งานประชาสัมพันธ์และกิจกรรมหน้าเสาธง",
-    "หัวหน้าประจำวันและดูแลความปลอดภัยในโรงเรียน"
-  ];
-
-  // เพิ่มฟังก์ชันแปลง Google Drive URL เป็น direct image link
-  function getDirectImageUrl(driveUrl?: string) {
-    if (!driveUrl) return '';
-    if (driveUrl.includes('lh3.googleusercontent.com')) {
-      // ไม่รองรับลิงก์นี้
-      return '';
-    }
-    // รองรับทั้ง /d/FILE_ID/ และ id=FILE_ID
-    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
-    const fileId = fileIdMatch ? fileIdMatch[1] : null;
-    if (!fileId) return driveUrl;
-    // Use smaller sz=w400 to reduce rate limiting
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
-  }
-
-  // เพิ่ม test image card สำหรับทดสอบ Google Drive link
-  const testDriveUrl = "https://drive.google.com/file/d/1nEi3lTmDAAu-fVLPFH7u2VQ6dm9KWwXz/view?usp=sharing";
-  const testDirectUrl = getDirectImageUrl(testDriveUrl);
 
   if (loading) {
     return (

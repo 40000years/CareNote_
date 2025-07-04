@@ -143,7 +143,6 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const [base64Image, setBase64Image] = useState<string | null>(null);
-  const [base64Loading, setBase64Loading] = useState(false);
 
   useEffect(() => {
     fetchReport();
@@ -182,32 +181,12 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
     });
   }
 
-  function formatTime(timeString: string) {
-    return timeString;
-  }
-
   function handlePrint() {
     window.print();
   }
 
-  function handleEditChange(e) {
-    const { name, value } = e.target;
-    setEditData((prev) => ({ ...prev, [name]: value }));
-  }
-
-  // เพิ่มฟังก์ชันแปลง Google Drive URL เป็น direct image link
-  function getDirectImageUrl(driveUrl?: string) {
-    if (!driveUrl) return '';
-    const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
-    const fileId = fileIdMatch ? fileIdMatch[1] : null;
-    if (!fileId) return driveUrl;
-    // Use smaller sz=w400 to reduce rate limiting
-    return `https://drive.google.com/thumbnail?id=${fileId}&sz=w400`;
-  }
-
   // โหลด base64 image เฉพาะตอน print
   const fetchBase64Image = useCallback(async (fileId: string) => {
-    setBase64Loading(true);
     try {
       const res = await fetch(`/api/drive-base64/${fileId}`);
       const data = await res.json();
@@ -216,8 +195,6 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
       }
     } catch (e) {
       setBase64Image(null);
-    } finally {
-      setBase64Loading(false);
     }
   }, []);
 

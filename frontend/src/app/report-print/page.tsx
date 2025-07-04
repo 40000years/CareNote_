@@ -1,7 +1,6 @@
 "use client";
 import { useEffect, useState } from "react";
 import { useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
 import Link from 'next/link';
 
 interface Report {
@@ -19,7 +18,6 @@ export default function ReportPrint() {
   
   const [reports, setReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
   const [selectedReport, setSelectedReport] = useState<Report | null>(null);
   const router = useRouter();
   const [mobileMenuOpen, setMobileMenuOpen] = useState<boolean | undefined>(undefined);
@@ -46,10 +44,10 @@ export default function ReportPrint() {
       if (data.success) {
         setReports(data.reports);
       } else {
-        setError(data.error || 'Failed to fetch reports');
+        console.error(data.error || 'Failed to fetch reports');
       }
     } catch (err) {
-      setError('Failed to fetch reports');
+      console.error('Failed to fetch reports');
     } finally {
       setLoading(false);
     }
@@ -104,23 +102,6 @@ export default function ReportPrint() {
           </div>
           <h2 className="text-2xl font-bold text-indigo-700 mb-2 drop-shadow-lg">กำลังโหลดข้อมูล...</h2>
           <p className="text-gray-500 text-lg">โปรดรอสักครู่</p>
-        </div>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
-        <div className="text-center">
-          <div className="text-red-600 text-xl mb-4">❌</div>
-          <p className="text-gray-600 mb-4">{error}</p>
-          <button 
-            onClick={fetchReports}
-            className="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
-          >
-            ลองใหม่
-          </button>
         </div>
       </div>
     );
