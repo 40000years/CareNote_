@@ -12,10 +12,9 @@ interface Report {
   imageUrl?: string;
 }
 
-function getDriveFileId(driveUrl?: string) {
-  if (!driveUrl) return null;
-  const fileIdMatch = driveUrl.match(/\/d\/([a-zA-Z0-9_-]+)/) || driveUrl.match(/id=([a-zA-Z0-9_-]+)/);
-  return fileIdMatch ? fileIdMatch[1] : null;
+function getDriveFileId(url: string) {
+  const match = url.match(/\/d\/([\w-]+)/) || url.match(/id=([\w-]+)/);
+  return match ? match[1] : null;
 }
 
 // Memory cache for base64 images (per session)
@@ -34,16 +33,19 @@ function DriveImage({ imageUrl, alt }: { imageUrl?: string, alt?: string }) {
       return;
     }
     setLoading(true);
-    fetch(`/api/drive-base64/${imageUrl}`)
-      .then(res => res.json())
-      .then(data => {
-        if (!ignore && data.base64 && data.mimeType) {
-          const src = `data:${data.mimeType};base64,${data.base64}`;
-          base64Cache[imageUrl] = src;
-          setImgSrc(src);
-        }
-      })
-      .finally(() => { if (!ignore) setLoading(false); });
+    const fileId = getDriveFileId(imageUrl);
+    if (fileId) {
+      fetch(`/api/drive-base64/${fileId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (!ignore && data.base64 && data.mimeType) {
+            const src = `data:${data.mimeType};base64,${data.base64}`;
+            base64Cache[imageUrl] = src;
+            setImgSrc(src);
+          }
+        })
+        .finally(() => { if (!ignore) setLoading(false); });
+    }
     return () => { ignore = true; };
   }, [imageUrl]);
 
