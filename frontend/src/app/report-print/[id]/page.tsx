@@ -34,7 +34,7 @@ function InlineEditableText({ value, onChange, className, as = "div", placeholde
     setEditing(false);
     if (temp !== value) onChange(temp);
   }
-  function handleKeyDown(e) {
+  function handleKeyDown(e: React.KeyboardEvent<HTMLInputElement | HTMLTextAreaElement>) {
     if (e.key === "Enter" && (!editing || as !== "textarea" || e.ctrlKey)) {
       setEditing(false);
       if (temp !== value) onChange(temp);
