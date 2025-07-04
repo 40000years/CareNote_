@@ -146,10 +146,6 @@ export default function ReportsPage() {
     });
   }
 
-  function formatTime(timeString: string) {
-    return timeString;
-  }
-
   function clearFilters() {
     setSearchTerm("");
     setDateFilter("");
@@ -459,7 +455,7 @@ export default function ReportsPage() {
                             </svg>
                           </div>
                           <span className="text-sm font-semibold text-gray-600">
-                            {formatTime(report.time)}
+                            {report.time}
                           </span>
                         </div>
                       </div>

@@ -1,5 +1,5 @@
 "use client";
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import imageCompression from "browser-image-compression";
@@ -39,7 +39,6 @@ export default function ReportForm() {
   });
   const [image, setImage] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
-  const fileInputRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState("");
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
@@ -334,7 +333,6 @@ export default function ReportForm() {
                     type="file"
                   accept="image/*"
                     onChange={handleImageChange}
-                  ref={fileInputRef}
                   className="mb-4 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-gradient-to-r file:from-indigo-400 file:to-cyan-400 file:text-white hover:file:from-indigo-500 hover:file:to-cyan-500 transition-all duration-200"
                   />
                   {imagePreview ? (
