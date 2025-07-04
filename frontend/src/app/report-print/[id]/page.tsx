@@ -78,7 +78,8 @@ function InlineEditableText({ value, onChange, className, as = "div", placeholde
 // Memory cache for base64 images (per session)
 const base64Cache = {} as Record<string, string>;
 
-function getDriveFileId(url: string) {
+function getDriveFileId(url: string | undefined | null) {
+  if (!url) return null;
   const match = url.match(/\/d\/([\w-]+)/) || url.match(/id=([\w-]+)/);
   return match ? match[1] : null;
 }

@@ -80,7 +80,8 @@ export default function ReportPrint() {
   }
 
   // เพิ่มฟังก์ชัน extract fileId
-  function getDriveFileId(url: string) {
+  function getDriveFileId(url: string | undefined | null) {
+    if (!url) return null;
     const match = url.match(/\/d\/([\w-]+)/) || url.match(/id=([\w-]+)/);
     return match ? match[1] : null;
   }
