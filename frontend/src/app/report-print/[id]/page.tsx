@@ -193,7 +193,7 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
       if (data.base64 && data.mimeType) {
         setBase64Image(`data:${data.mimeType};base64,${data.base64}`);
       }
-    } catch (e) {
+    } catch {
       setBase64Image(null);
     }
   }, []);

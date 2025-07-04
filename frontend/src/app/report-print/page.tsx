@@ -45,7 +45,7 @@ export default function ReportPrint() {
       } else {
         console.error(data.error || 'Failed to fetch reports');
       }
-    } catch (err) {
+    } catch {
       console.error('Failed to fetch reports');
     } finally {
       setLoading(false);
