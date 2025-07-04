@@ -218,7 +218,7 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
     const fileId = getDriveFileId(report?.imageUrl);
     if (!fileId) return;
     function beforePrint() {
-      if (!base64Image) fetchBase64Image(fileId);
+      if (!base64Image && fileId) fetchBase64Image(fileId);
     }
     window.addEventListener('beforeprint', beforePrint);
     // สำหรับกรณีเข้า print preview บาง browser
