@@ -83,6 +83,31 @@ export default function ReportsPage() {
 
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // เพิ่มตัวแปร LOCATION_OPTIONS และ TIME_OPTIONS ให้เหมือนกับหน้า report-form
+  const TIME_OPTIONS = [
+    "07.00 – 08.00 น.",
+    "07.30 – 08.20 น.",
+    "08.00 – 09.00 น.",
+    "11.05 – 11.55 น.",
+    "12.00 – 12.50 น.",
+    "15.35 – 17.00 น."
+  ];
+  const LOCATION_OPTIONS = [
+    "บริเวณสะพานลอย",
+    "บริเวณจุดรับ-ส่งนักเรียนหน้าโรงเรียน(ป้ายโรงเรียน)",
+    "หลังป้อมตำรวจและแนวกำแพงด้านนอกโรงเรียนด้านที่ติดกับสนามกีฬาจังหวัดสิงห์บุรี",
+    "บริเวณประตูเข้า-ออกหน้าโรงเรียน",
+    "บริเวณประตูเข้า-ออกโรงเก็บรถจักรยานยนต์",
+    "บริเวณถนนหน้าพระพุทธสิหิงมงคล",
+    "บริเวณสี่แยกอาคาร ๕ และอาคาร ๕",
+    "ดูแลนักเรียนมาสาย",
+    "โรงอาหาร คาบเรียนที่ ๕",
+    "โรงอาหาร คาบเรียนที่ ๖",
+    "สนามกีฬาจังหวัดสิงห์บุรี",
+    "งานประชาสัมพันธ์และกิจกรรมหน้าเสาธง",
+    "หัวหน้าประจำวันและดูแลความปลอดภัยในโรงเรียน"
+  ];
+
   useEffect(() => {
     fetchReports();
   }, []);
@@ -112,8 +137,13 @@ export default function ReportsPage() {
       );
     }
 
+    // Time filter
+    if (timeFilter) {
+      filtered = filtered.filter(report => report.time === timeFilter);
+    }
+
     setFilteredReports(filtered);
-  }, [reports, searchTerm, dateFilter, locationFilter]);
+  }, [reports, searchTerm, dateFilter, locationFilter, timeFilter]);
 
   // Reset to page 1 when filters/search change
   useEffect(() => {
@@ -339,27 +369,22 @@ export default function ReportsPage() {
                   />
                 </div>
                 <div className="flex-1 sm:flex-none">
-                  <select
-                    value={locationFilter}
-                    onChange={(e) => setLocationFilter(e.target.value)}
-                    className="input-futuristic w-full sm:w-auto"
-                  >
-                    <option value="">ทุกสถานที่</option>
-                    <option value="อาคาร 1">อาคาร 1</option>
-                    <option value="อาคาร 2">อาคาร 2</option>
-                    <option value="อาคาร 3">อาคาร 3</option>
-                    <option value="อาคาร 4">อาคาร 4</option>
-                    <option value="อาคาร 5">อาคาร 5</option>
-                    <option value="โรงอาหาร">โรงอาหาร</option>
-                    <option value="สนามกีฬา">สนามกีฬา</option>
-                    <option value="ห้องสมุด">ห้องสมุด</option>
-                    <option value="ห้องพยาบาล">ห้องพยาบาล</option>
-                    <option value="ห้องประชุม">ห้องประชุม</option>
-                    <option value="ลานหน้าโรงเรียน">ลานหน้าโรงเรียน</option>
-                    <option value="ลานหลังโรงเรียน">ลานหลังโรงเรียน</option>
-                    <option value="ถนนในโรงเรียน">ถนนในโรงเรียน</option>
-                    <option value="อื่นๆ">อื่นๆ</option>
-                  </select>
+                  <div className="relative">
+                    <select
+                      value={locationFilter}
+                      onChange={(e) => setLocationFilter(e.target.value)}
+                      className="input-futuristic w-full sm:w-auto max-w-xs md:max-w-sm lg:max-w-md truncate"
+                      style={{ maxWidth: '320px', textOverflow: 'ellipsis', whiteSpace: 'nowrap', overflow: 'hidden' }}
+                    >
+                      <option value="">ทุกสถานที่</option>
+                      {LOCATION_OPTIONS.map(option => (
+                        <option key={option} value={option} title={option} className="truncate">
+                          {option}
+                        </option>
+                      ))}
+                    </select>
+                    {/* Tooltip แสดงชื่อเต็มเมื่อ hover dropdown (desktop) */}
+                  </div>
                 </div>
                 <div className="flex-1 sm:flex-none">
                   <select
@@ -368,15 +393,9 @@ export default function ReportsPage() {
                     className="input-futuristic w-full sm:w-auto"
                   >
                     <option value="">ทุกเวลา</option>
-                    <option value="08:00">08:00</option>
-                    <option value="08:30">08:30</option>
-                    <option value="09:00">09:00</option>
-                    <option value="09:30">09:30</option>
-                    <option value="10:00">10:00</option>
-                    <option value="10:30">10:30</option>
-                    <option value="11:00">11:00</option>
-                    <option value="11:30">11:30</option>
-                    <option value="12:00">12:00</option>
+                    {TIME_OPTIONS.map(option => (
+                      <option key={option} value={option}>{option}</option>
+                    ))}
                   </select>
                 </div>
               </div>
