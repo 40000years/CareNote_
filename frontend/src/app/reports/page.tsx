@@ -450,7 +450,18 @@ export default function ReportsPage() {
                   >
                     {/* Image */}
                     <div className="mb-6">
-                      <DriveImage imageUrl={report.imageUrl} alt={`รูปประกอบ ${report.id}`} />
+                      {report.imageUrl ? (
+                        <img
+                          src={report.imageUrl}
+                          alt={`รูปประกอบ ${report.id}`}
+                          className="w-full h-56 object-cover rounded-xl border"
+                          style={{ background: '#f3f4f6' }}
+                          loading="lazy"
+                          onError={e => (e.currentTarget.style.display = 'none')}
+                        />
+                      ) : (
+                        <div className="w-full h-56 bg-gray-200 rounded-xl flex items-center justify-center text-gray-400">ไม่พบรูป</div>
+                      )}
                     </div>
 
                     {/* Content */}

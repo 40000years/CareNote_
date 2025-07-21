@@ -12,7 +12,6 @@ const auth = new google.auth.GoogleAuth({
 export async function GET() {
   try {
     const sheets = google.sheets({ version: 'v4', auth });
-    
     const response = await sheets.spreadsheets.values.get({
       spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
       range: 'รายงาน!A:F', // date, time, name, location, event, imageUrl
@@ -38,7 +37,7 @@ export async function GET() {
   } catch (error) {
     console.error('Error fetching reports:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch reports' },
+      { error: 'Failed to fetch reports', details: String(error) },
       { status: 500 }
     );
   }

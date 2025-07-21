@@ -15,7 +15,6 @@ export async function POST(request: Request) {
     const { date, time, name, location, event, imageUrl } = body;
 
     const sheets = google.sheets({ version: 'v4', auth });
-    
     // Append the new report to the sheet
     const response = await sheets.spreadsheets.values.append({
       spreadsheetId: process.env.GOOGLE_SPREADSHEET_ID,
@@ -34,7 +33,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating report:', error);
     return NextResponse.json(
-      { error: 'Failed to create report' },
+      { error: 'Failed to create report', details: String(error) },
       { status: 500 }
     );
   }

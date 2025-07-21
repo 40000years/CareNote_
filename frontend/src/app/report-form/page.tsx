@@ -85,7 +85,7 @@ export default function ReportForm() {
           body: formData,
         });
         const uploadData = await uploadRes.json();
-        return uploadData.fileUrl;
+        return uploadData.url;
       })() : Promise.resolve("");
 
       // Wait for image upload to complete

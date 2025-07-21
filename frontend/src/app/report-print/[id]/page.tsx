@@ -383,7 +383,14 @@ export default function ReportPrintPage({ params }: { params: Promise<{ id: stri
         <div className="max-w-[800px] mx-auto mt-6 print:mt-4">
           <div className="font-bold text-base print:text-sm mb-1">รูปภาพประกอบ</div>
           <div className="flex justify-center">
-            <DriveImage imageUrl={report.imageUrl} alt="Report Image" />
+            <img
+              src={report.imageUrl}
+              alt="Report Image"
+              className="rounded-md max-w-full max-h-[320px] border"
+              style={{ margin: '0 auto', background: '#f3f4f6' }}
+              loading="lazy"
+              onError={e => (e.currentTarget.style.display = 'none')}
+            />
           </div>
         </div>
       )}
